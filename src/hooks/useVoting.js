@@ -62,7 +62,12 @@ export default function useVoting() {
   };
 
   const toggleVote = (cube) => {
-    if (!isVoting) return;
+    // Store cube with explicit name for display
+    const cubeData = {
+      id: cube.id,
+      name: cube.name || cube.cubeName || 'Unknown Cube',
+      ...cube,
+    };
 
     setVotes((currentVotes) => {
       const existingIndex = currentVotes.findIndex((v) => v?.id === cube.id);
@@ -79,7 +84,7 @@ export default function useVoting() {
       const emptyIndex = currentVotes.findIndex((v) => v === null);
       if (emptyIndex >= 0) {
         const newVotes = [...currentVotes];
-        newVotes[emptyIndex] = cube;
+        newVotes[emptyIndex] = cubeData;
         return newVotes;
       }
 
