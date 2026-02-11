@@ -8,60 +8,66 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
   <!-- Navigation -->
   <nav>
-    <a href="#" class="brand">CubeCon</a>
+    <a href="#" class="nav-brand">CubeCon</a>
     <div class="nav-links">
       <a href="#about" class="nav-link">About</a>
       <a href="#prizes" class="nav-link">Prizes</a>
       <a href="#cubes" class="nav-link">Cubes</a>
-      <a href="#register" class="nav-cta">Register</a>
+      <a href="mailto:info@aarebogemagic.ch" class="nav-cta">Contact</a>
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- Hero -->
   <section class="hero">
-    <div class="light-leak orange"></div>
-    <div class="light-leak blue"></div>
+    <div class="light-leak light-leak--orange"></div>
+    <div class="light-leak light-leak--blue"></div>
     
-    <div class="hero-content">
-      <div class="hero-image-container reveal">
+    <div class="hero-inner">
+      <div class="hero-image reveal">
         <img src="prizepool-full.jpg" alt="Prize Pool">
       </div>
-      <h1 class="hero-title reveal">CubeCon</h1>
-      <p class="hero-subtitle reveal">The ultimate cube draft tournament. 64 players. 8 cubes. One champion.</p>
-      <p class="hero-date reveal">02.05.2026 · Sursee</p>
+      
+      <h1 class="hero-title reveal reveal-delay-1">CubeCon</h1>
+      
+      <p class="hero-caption">The ultimate cube draft tournament. 64 players. 8 cubes. One champion.</p>
+      
+      <div class="hero-meta reveal reveal-delay-2">
+        <p class="hero-date">02 May 2026 · Kulturwerk 118, Sursee</p>
+      </div>
     </div>
   </section>
 
-  <!-- Stats Grid -->
-  <section class="stats-section">
+  <!-- Stats -->
+  <section class="stats">
     <div class="stats-grid">
-      <div class="stat-item">
+      <div class="stat reveal">
         <p class="stat-label">Players</p>
         <p class="stat-value">64</p>
       </div>
-      <div class="stat-item">
+      <div class="stat reveal reveal-delay-1">
         <p class="stat-label">Cubes</p>
         <p class="stat-value">8</p>
       </div>
-      <div class="stat-item">
+      <div class="stat reveal reveal-delay-2">
         <p class="stat-label">Venue</p>
         <p class="stat-value">Kulturwerk 118</p>
       </div>
-      <div class="stat-item">
+      <div class="stat reveal reveal-delay-3">
         <p class="stat-label">Date</p>
         <p class="stat-value">May 2, 2026</p>
       </div>
     </div>
   </section>
 
-  <!-- About Section -->
-  <section id="about" class="content-section">
-    <div class="content-grid">
-      <div class="content-number">01</div>
-      <div class="content-body">
-        <h3>Welcome to CubeCon 2026</h3>
+  <!-- About -->
+  <section id="about" class="section">
+    <div class="section-grid">
+      <div class="section-number">01</div>
+      <div class="section-content">
+        <h2>Welcome to CubeCon 2026</h2>
         <p>Join us for an epic day of cube drafting at Kulturwerk 118, Sursee. Up to 64 players will be divided into 8 pods based on your cube preferences.</p>
         <p>This isn't just another tournament—it's a celebration of the cube format. Each pod drafts a different cube, curated by passionate cube owners from across Switzerland.</p>
         <p>Got an invite link? Use it to vote for your favorite cubes and shape the event.</p>
@@ -69,12 +75,20 @@
     </div>
   </section>
 
-  <!-- Prizes Section -->
-  <section id="prizes" class="content-section">
-    <div class="content-grid">
-      <div class="content-number">02</div>
-      <div class="content-body">
-        <h3>Tournament Structure & Prizes</h3>
+  <!-- Gallery -->
+  <section class="gallery">
+    <div class="gallery-full">
+      <img src="prizepool-full.jpg" alt="Prize Pool Cards">
+      <span class="gallery-caption">Prize Pool 2026</span>
+    </div>
+  </section>
+
+  <!-- Prizes -->
+  <section id="prizes" class="section">
+    <div class="section-grid">
+      <div class="section-number">02</div>
+      <div class="section-content">
+        <h2>Tournament Structure & Prizes</h2>
         
         <p><strong>Round 1: Cube Draft</strong><br>
         Everyone plays one of 8 cubes. The 8 pod winners advance to the finals.</p>
@@ -84,12 +98,12 @@
         <ul>
           <li>1st — Lion's Eye Diamond</li>
           <li>2nd — Survival of the Fittest</li>
-          <li>3rd/4th — Force of Will</li>
-          <li>5th–8th — Windswept Heath</li>
+          <li>3rd / 4th — Force of Will</li>
+          <li>5th – 8th — Windswept Heath</li>
         </ul>
         
         <p><strong>Consolation Round</strong><br>
-        Other players get to draft a second cube! Pod winners receive one of:</p>
+        Other players get to draft a second cube. Pod winners receive one of:</p>
         <ul>
           <li>Goblin Welder</li>
           <li>City of Brass</li>
@@ -100,24 +114,14 @@
           <li>Wrath of God</li>
         </ul>
         
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 2rem;">
-          Note: If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.
-        </p>
+        <p class="note">If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.</p>
       </div>
     </div>
   </section>
 
-  <!-- Gallery -->
-  <section class="gallery-section">
-    <div class="gallery-full">
-      <img src="prizepool-full.jpg" alt="Prize Pool Cards">
-      <span class="gallery-caption">Prize Pool 2026</span>
-    </div>
-  </section>
-
-  <!-- Voting Panel Section -->
+  <!-- Voting -->
   <section id="register" class="panel-section">
-    <!-- Intro Panel (shown on landing) -->
+    <!-- Intro Panel -->
     <div class="panel" id="intro-panel">
       <h2>Join the Draft</h2>
       <p>Got an invite link? Use it to vote for your favorite cubes and secure your spot at CubeCon 2026.</p>
@@ -128,11 +132,11 @@
       </div>
     </div>
 
-    <!-- Voting Panel (shown when user has invite) -->
+    <!-- Voting Panel -->
     <div class="panel" id="voting-panel" style="display: none;">
       <div class="voting-header">
         <h2>Your Votes</h2>
-        <p>Select your top 3-5 cubes</p>
+        <p>Select your top 3–5 cubes</p>
       </div>
       <div class="vote-slots">
         <div class="vote-slot" data-rank="1">
@@ -166,7 +170,7 @@
     </div>
   </section>
 
-  <!-- Voter Registration Modal -->
+  <!-- Modal -->
   <div class="modal" id="register-modal" style="display: none;">
     <div class="modal-content">
       <h2>Welcome</h2>
@@ -176,9 +180,9 @@
     </div>
   </div>
 
-  <!-- Cubes Section -->
+  <!-- Cubes -->
   <section id="cubes" class="cubes-section">
-    <div class="section-header">
+    <div class="cubes-header">
       <h2 id="cubes-heading" style="display: none;">Choose Your Cubes</h2>
       <p id="cubes-subheading" style="display: none;">Click to add to your votes</p>
     </div>
@@ -189,32 +193,29 @@
 
   <!-- Footer -->
   <footer>
-    <div class="light-leak blue"></div>
-    <a href="mailto:cubecon@example.com" class="footer-cta">Get in Touch</a>
+    <div class="light-leak light-leak--blue"></div>
+    <a href="mailto:info@aarebogemagic.ch" class="footer-cta">info@aarebogemagic.ch</a>
     <div class="footer-links">
       <a href="admin.html">Admin</a>
-      <a href="#">Discord</a>
     </div>
     <span class="ghost-brand">CubeCon</span>
   </footer>
 
   <script type="module" src="app.js"></script>
   
-  <!-- Reveal Animation Script -->
   <script>
+    // Reveal on scroll
     document.addEventListener('DOMContentLoaded', () => {
       const reveals = document.querySelectorAll('.reveal');
       
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add('visible');
-            }, index * 100);
+            entry.target.classList.add('visible');
             observer.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.1 });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
       
       reveals.forEach(el => observer.observe(el));
     });
