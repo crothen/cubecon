@@ -126,16 +126,12 @@ header {
   width: 100px;
   height: auto;
   margin-bottom: 1rem;
-  filter: grayscale(100%) contrast(1.2);
-  
 }
 
 .title-image {
   max-width: 500px;
   width: 90%;
   height: auto;
-  filter: contrast(1.3) grayscale(20%);
-  
 }
 
 /* Distressed hero title */
