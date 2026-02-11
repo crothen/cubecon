@@ -118,7 +118,7 @@ export default function useVoting() {
   };
 
   const validVoteCount = votes.filter((v) => v !== null).length;
-  const canSubmit = validVoteCount >= MIN_VOTES && !isSubmitted;
+  const canSubmit = validVoteCount >= MIN_VOTES;
 
   return {
     // Invite state

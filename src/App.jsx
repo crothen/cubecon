@@ -21,7 +21,7 @@ function InvalidInvite({ error }) {
   );
 }
 
-function SubmittedPanel({ voterName, votes }) {
+function SubmittedPanel({ voterName, votes, onEdit }) {
   return (
     <section className="intro-panel">
       <h2>✅ Votes Submitted!</h2>
@@ -34,6 +34,9 @@ function SubmittedPanel({ voterName, votes }) {
           </li>
         ))}
       </ol>
+      <button onClick={onEdit} className="rejoin-btn" style={{ marginTop: '1rem' }}>
+        Edit Votes
+      </button>
     </section>
   );
 }
@@ -87,12 +90,7 @@ export default function App() {
       return <InvalidInvite error={inviteError} />;
     }
 
-    // Already submitted
-    if (isSubmitted) {
-      return <SubmittedPanel voterName={voterName} votes={votes} />;
-    }
-
-    // Active voting session
+    // Active voting session (including editing after submission)
     if (isVoting) {
       return (
         <VotingPanel
@@ -103,6 +101,11 @@ export default function App() {
           canSubmit={canSubmit}
         />
       );
+    }
+
+    // Already submitted - show summary with edit option
+    if (isSubmitted) {
+      return <SubmittedPanel voterName={voterName} votes={votes} onEdit={rejoinVoting} />;
     }
 
     // Has session but not actively voting (rejoin available)
