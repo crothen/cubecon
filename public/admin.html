@@ -540,6 +540,17 @@
       color: var(--text-muted);
     }
 
+    /* Collapsible */
+    .collapsible {
+      max-height: 2000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .collapsible.collapsed {
+      max-height: 0;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 640px) {
       .cube-item {
@@ -643,22 +654,26 @@
 
       <!-- Invites List -->
       <div class="section">
-        <div class="section-header">
+        <div class="section-header" style="cursor: pointer;" id="invites-toggle">
           <h2>🗳️ Invites & Votes</h2>
+          <button class="btn btn-sm btn-secondary" id="invites-toggle-btn">
+            <span id="invites-toggle-icon">▶</span> Show Details
+          </button>
         </div>
-        <div class="section-body" style="padding: 0;">
+        <div class="section-body collapsible collapsed" id="invites-content" style="padding: 0;">
           <div class="table-wrapper">
             <table id="invites-table">
               <thead>
                 <tr>
-                  <th>Code</th>
+                  <th>Invite Code</th>
                   <th>Name</th>
                   <th>Status</th>
                   <th>Votes</th>
+                  <th>Created</th>
                 </tr>
               </thead>
               <tbody id="invites-tbody">
-                <tr><td colspan="4" class="empty">Loading...</td></tr>
+                <tr><td colspan="5" class="empty">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -908,10 +923,11 @@
 
         tbody.innerHTML = invites.map(inv => `
           <tr>
-            <td style="font-family: monospace; font-size: 0.8rem;">${inv.id}</td>
+            <td style="font-family: monospace; font-size: 0.75rem;">${inv.id}</td>
             <td>${inv.name || '—'}</td>
             <td><span class="badge badge-${inv.status || 'pending'}">${inv.status || 'pending'}</span></td>
-            <td>${inv.votes ? inv.votes.map(v => v.cubeName).join(', ') : '—'}</td>
+            <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${inv.votes ? inv.votes.map(v => v.cubeName).join(', ') : '—'}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : '—'}</td>
           </tr>
         `).join('');
       } catch (err) {
@@ -1040,6 +1056,19 @@
       if (e.target === $('edit-modal')) {
         $('edit-modal').classList.add('hidden');
       }
+    });
+
+    // Invites toggle
+    $('invites-toggle').addEventListener('click', () => {
+      const content = $('invites-content');
+      const btn = $('invites-toggle-btn');
+      const icon = $('invites-toggle-icon');
+      
+      content.classList.toggle('collapsed');
+      const isCollapsed = content.classList.contains('collapsed');
+      
+      icon.textContent = isCollapsed ? '▶' : '▼';
+      btn.innerHTML = `<span id="invites-toggle-icon">${isCollapsed ? '▶' : '▼'}</span> ${isCollapsed ? 'Show' : 'Hide'} Details`;
     });
   </script>
 </body>
