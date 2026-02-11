@@ -8,7 +8,15 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid));
     }
 
-    // Votes - public read/write for voting
+    // Invites - public read, public update (for voting), admin create/delete
+    match /cubecon_invites/{inviteId} {
+      allow read: if true;
+      allow update: if true;
+      allow create, delete: if request.auth != null
+        && exists(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid));
+    }
+
+    // Votes - deprecated, use invites instead
     match /cubecon_votes/{voteId} {
       allow read: if true;
       allow write: if true;

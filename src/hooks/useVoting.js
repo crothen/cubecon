@@ -1,72 +1,71 @@
-import { useState, useEffect } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { useState, useEffect, useCallback } from 'react';
+import useInvite from './useInvite';
 
 const MAX_VOTES = 5;
 const MIN_VOTES = 3;
 
-function getSessionKey(inviteCode) {
-  return `cubecon_session_${inviteCode}`;
-}
-
 export default function useVoting() {
+  const {
+    inviteCode,
+    invite,
+    isLoading: isInviteLoading,
+    error: inviteError,
+    isValid,
+    isRegistered,
+    isSubmitted,
+    savedName,
+    savedVotes,
+    registerName,
+    saveVotes,
+  } = useInvite();
+
   const [votes, setVotes] = useState(Array(MAX_VOTES).fill(null));
   const [voterName, setVoterName] = useState('');
   const [isVoting, setIsVoting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [inviteCode, setInviteCode] = useState(null);
-  const [hasSession, setHasSession] = useState(false);
 
-  // Check for invite code in URL on mount
+  // Initialize state from invite data
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const invite = params.get('invite');
-    
-    if (invite) {
-      setInviteCode(invite);
-      
-      // Check for existing session
-      const savedSession = localStorage.getItem(getSessionKey(invite));
-      if (savedSession) {
-        try {
-          const session = JSON.parse(savedSession);
-          setVoterName(session.name);
-          setHasSession(true);
-        } catch {
-          localStorage.removeItem(getSessionKey(invite));
-          setShowModal(true);
+    if (!isInviteLoading && isValid) {
+      if (isRegistered) {
+        setVoterName(savedName);
+        
+        // Restore saved votes if any
+        if (savedVotes.length > 0) {
+          const restoredVotes = Array(MAX_VOTES).fill(null);
+          savedVotes.forEach((vote, index) => {
+            restoredVotes[index] = {
+              id: vote.cubeId,
+              name: vote.cubeName,
+            };
+          });
+          setVotes(restoredVotes);
         }
       } else {
+        // New invite - show registration modal
         setShowModal(true);
       }
     }
-  }, []);
+  }, [isInviteLoading, isValid, isRegistered, savedName, savedVotes]);
 
-  const startVoting = () => {
-    if (!voterName.trim() || !inviteCode) return;
-    
-    localStorage.setItem(
-      getSessionKey(inviteCode),
-      JSON.stringify({
-        name: voterName,
-        startedAt: new Date().toISOString(),
-      })
-    );
-    
-    setShowModal(false);
-    setIsVoting(true);
+  const startVoting = async () => {
+    if (!voterName.trim()) return;
+
+    const success = await registerName(voterName);
+    if (success) {
+      setShowModal(false);
+      setIsVoting(true);
+    }
   };
 
   const rejoinVoting = () => {
     setIsVoting(true);
   };
 
-  const toggleVote = (cube) => {
-    // Store cube with explicit name for display
+  const toggleVote = useCallback((cube) => {
     const cubeData = {
       id: cube.id,
       name: cube.name || cube.cubeName || 'Unknown Cube',
-      ...cube,
     };
 
     setVotes((currentVotes) => {
@@ -90,53 +89,55 @@ export default function useVoting() {
 
       return currentVotes;
     });
-  };
+  }, []);
 
-  const clearVote = (rank) => {
+  const clearVote = useCallback((rank) => {
     setVotes((currentVotes) => {
       const newVotes = [...currentVotes];
       newVotes.splice(rank - 1, 1);
       newVotes.push(null);
       return newVotes;
     });
-  };
+  }, []);
 
   const submitVotes = async () => {
     const validVotes = votes.filter((v) => v !== null);
-    
-    if (validVotes.length < MIN_VOTES || !inviteCode) return;
 
-    try {
-      await setDoc(doc(db, 'cubecon_votes', inviteCode), {
-        name: voterName,
-        votes: validVotes.map((v, i) => ({
-          cubeId: v.id,
-          cubeName: v.name,
-          rank: i + 1,
-        })),
-        submittedAt: new Date().toISOString(),
-      });
+    if (validVotes.length < MIN_VOTES) {
+      alert(`Please select at least ${MIN_VOTES} cubes.`);
+      return;
+    }
 
-      localStorage.removeItem(getSessionKey(inviteCode));
+    const success = await saveVotes(votes, voterName);
+    if (success) {
       alert('Votes submitted! Thank you for participating.');
-      window.location.href = '/';
-    } catch (err) {
-      console.error('Error submitting votes:', err);
+      setIsVoting(false);
+    } else {
       alert('Error submitting votes. Please try again.');
     }
   };
 
   const validVoteCount = votes.filter((v) => v !== null).length;
-  const canSubmit = validVoteCount >= MIN_VOTES;
+  const canSubmit = validVoteCount >= MIN_VOTES && !isSubmitted;
 
   return {
+    // Invite state
+    inviteCode,
+    isInviteLoading,
+    inviteError,
+    isValidInvite: isValid,
+    isSubmitted,
+    
+    // Voting state
     votes,
     voterName,
     setVoterName,
     isVoting,
     showModal,
-    hasSession,
+    hasSession: isRegistered && !isSubmitted,
     canSubmit,
+    
+    // Actions
     startVoting,
     rejoinVoting,
     toggleVote,
