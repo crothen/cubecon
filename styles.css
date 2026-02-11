@@ -96,6 +96,12 @@ body::after {
   white-space: nowrap;
 }
 
+@media (max-width: 768px) {
+  .marquee-content {
+    animation-duration: 8s;
+  }
+}
+
 .marquee-text {
   font-family: 'Roboto Mono', monospace;
   font-size: 0.75rem;
