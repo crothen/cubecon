@@ -4,7 +4,8 @@ service cloud.firestore {
     // Cubes - public read, admin write
     match /cubecon_cubes/{cubeId} {
       allow read: if true;
-      allow write: if true;  // TODO: restrict to admin
+      allow write: if request.auth != null
+        && exists(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid));
     }
 
     // Votes - public read/write for voting
@@ -16,7 +17,16 @@ service cloud.firestore {
     // Settings - public read, admin write
     match /cubecon_settings/{settingId} {
       allow read: if true;
-      allow write: if true;  // TODO: restrict to admin
+      allow write: if request.auth != null
+        && exists(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid));
+    }
+
+    // Admins - admin read, super-admin write
+    match /cubecon_admins/{userId} {
+      allow read: if request.auth != null
+        && exists(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid));
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/cubecon_admins/$(request.auth.uid)).data.role == "admin";
     }
   }
 }
