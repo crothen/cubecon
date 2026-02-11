@@ -8,135 +8,32 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-  <!-- Navigation -->
-  <nav>
-    <a href="#" class="nav-brand">CubeCon</a>
-    <div class="nav-links">
-      <a href="#about" class="nav-link">About</a>
-      <a href="#prizes" class="nav-link">Prizes</a>
-      <a href="#cubes" class="nav-link">Cubes</a>
-      <a href="mailto:info@aarebogemagic.ch" class="nav-cta">Contact</a>
+  <header>
+    <div class="header-content">
+      <img src="logo.png" alt="CubeCon Logo" class="logo">
+      <img src="title.png" alt="CUBECON" class="title-image">
+      <p class="subtitle">02.05.2026 · Kulturwerk 118, Sursee</p>
     </div>
-  </nav>
+  </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="light-leak light-leak--orange"></div>
-    <div class="light-leak light-leak--blue"></div>
-    
-    <div class="hero-inner">
-      <div class="hero-image reveal">
-        <img src="prizepool-full.jpg" alt="Prize Pool">
-      </div>
-      
-      <h1 class="hero-title reveal reveal-delay-1">CubeCon</h1>
-      
-      <p class="hero-caption">The ultimate cube draft tournament. 64 players. 8 cubes. One champion.</p>
-      
-      <div class="hero-meta reveal reveal-delay-2">
-        <p class="hero-date">02 May 2026 · Kulturwerk 118, Sursee</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats -->
-  <section class="stats">
-    <div class="stats-grid">
-      <div class="stat reveal">
-        <p class="stat-label">Players</p>
-        <p class="stat-value">64</p>
-      </div>
-      <div class="stat reveal reveal-delay-1">
-        <p class="stat-label">Cubes</p>
-        <p class="stat-value">8</p>
-      </div>
-      <div class="stat reveal reveal-delay-2">
-        <p class="stat-label">Venue</p>
-        <p class="stat-value">Kulturwerk 118</p>
-      </div>
-      <div class="stat reveal reveal-delay-3">
-        <p class="stat-label">Date</p>
-        <p class="stat-value">May 2, 2026</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="section">
-    <div class="section-grid">
-      <div class="section-number">01</div>
-      <div class="section-content">
-        <h2>Welcome to CubeCon 2026</h2>
-        <p>Join us for an epic day of cube drafting at Kulturwerk 118, Sursee. Up to 64 players will be divided into 8 pods based on your cube preferences.</p>
-        <p>This isn't just another tournament—it's a celebration of the cube format. Each pod drafts a different cube, curated by passionate cube owners from across Switzerland.</p>
-        <p>Got an invite link? Use it to vote for your favorite cubes and shape the event.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Gallery -->
-  <section class="gallery">
-    <div class="gallery-full">
-      <img src="prizepool-full.jpg" alt="Prize Pool Cards">
-      <span class="gallery-caption">Prize Pool 2026</span>
-    </div>
-  </section>
-
-  <!-- Prizes -->
-  <section id="prizes" class="section">
-    <div class="section-grid">
-      <div class="section-number">02</div>
-      <div class="section-content">
-        <h2>Tournament Structure & Prizes</h2>
-        
-        <p><strong>Round 1: Cube Draft</strong><br>
-        Everyone plays one of 8 cubes. The 8 pod winners advance to the finals.</p>
-        
-        <p><strong>Finals: Vintage Cube</strong><br>
-        The 8 winners compete in Vintage Cube for the big prizes:</p>
-        <ul>
-          <li>1st — Lion's Eye Diamond</li>
-          <li>2nd — Survival of the Fittest</li>
-          <li>3rd / 4th — Force of Will</li>
-          <li>5th – 8th — Windswept Heath</li>
-        </ul>
-        
-        <p><strong>Consolation Round</strong><br>
-        Other players get to draft a second cube. Pod winners receive one of:</p>
-        <ul>
-          <li>Goblin Welder</li>
-          <li>City of Brass</li>
-          <li>Worldly Tutor</li>
-          <li>Entomb</li>
-          <li>Pernicious Deed</li>
-          <li>Birds of Paradise</li>
-          <li>Wrath of God</li>
-        </ul>
-        
-        <p class="note">If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Voting -->
-  <section id="register" class="panel-section">
-    <!-- Intro Panel -->
-    <div class="panel" id="intro-panel">
-      <h2>Join the Draft</h2>
-      <p>Got an invite link? Use it to vote for your favorite cubes and secure your spot at CubeCon 2026.</p>
-      <p>Voting helps us determine which 8 cubes will be played on the day of the event.</p>
-      <div id="rejoin-section" style="display: none;">
-        <p>Welcome back! You have an active voting session.</p>
+  <main>
+    <!-- Event Introduction (shown on landing page) -->
+    <section class="intro-panel sketchy" id="intro-panel">
+      <h2>Welcome to CubeCon 2026!</h2>
+      <p>Join us for an epic day of cube drafting at <strong>Kulturwerk 118, Sursee</strong> on <strong>May 2nd, 2026</strong>.</p>
+      <p>Up to <strong>64 players</strong> will be divided into <strong>8 pods</strong> based on your cube preferences.</p>
+      <p>Got an invite link? Use it to vote for your favorite cubes!</p>
+      <div id="rejoin-section" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e5;">
+        <p style="color: #555; margin-bottom: 0.75rem;">Welcome back! You have an active voting session.</p>
         <button id="rejoin-btn" class="rejoin-btn">Continue Voting →</button>
       </div>
-    </div>
+    </section>
 
-    <!-- Voting Panel -->
-    <div class="panel" id="voting-panel" style="display: none;">
+    <!-- Voting Panel (shown when user has invite) -->
+    <section class="voting-panel sketchy" id="voting-panel" style="display: none;">
       <div class="voting-header">
-        <h2>Your Votes</h2>
-        <p>Select your top 3–5 cubes</p>
+        <h2>🗳️ Your Votes</h2>
+        <p>Select your top 3-5 cubes!</p>
       </div>
       <div class="vote-slots">
         <div class="vote-slot" data-rank="1">
@@ -165,60 +62,70 @@
           <button class="clear-vote" data-rank="5">×</button>
         </div>
       </div>
-      <button class="submit-votes" id="submit-votes" disabled>Submit Votes</button>
+      <button class="submit-votes" id="submit-votes" disabled>SUBMIT VOTES</button>
       <p class="voter-name">Voting as: <strong id="voter-name-display"></strong></p>
-    </div>
-  </section>
+    </section>
 
-  <!-- Modal -->
-  <div class="modal" id="register-modal" style="display: none;">
-    <div class="modal-content">
-      <h2>Welcome</h2>
-      <p>Enter your name to vote for your top 3 cubes.</p>
-      <input type="text" id="voter-name-input" placeholder="Your name" maxlength="50">
-      <button id="register-btn">Start Voting</button>
+    <!-- Voter Registration Modal -->
+    <div class="modal" id="register-modal" style="display: none;">
+      <div class="modal-content">
+        <h2>WELCOME!</h2>
+        <p>Enter your name to vote for your top 3 cubes.</p>
+        <input type="text" id="voter-name-input" placeholder="Your name" maxlength="50">
+        <button id="register-btn">START VOTING</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Cubes -->
-  <section id="cubes" class="cubes-section">
-    <div class="cubes-header">
+    <!-- Cubes Grid -->
+    <section class="cubes-section">
       <h2 id="cubes-heading" style="display: none;">Choose Your Cubes</h2>
-      <p id="cubes-subheading" style="display: none;">Click to add to your votes</p>
-    </div>
-    <div class="cubes-grid" id="cubes-grid">
-      <div class="loading">Loading cubes...</div>
-    </div>
-  </section>
+      <div class="cubes-grid" id="cubes-grid">
+        <div class="loading">Loading cubes...</div>
+      </div>
+    </section>
 
-  <!-- Footer -->
+    <!-- Tournament Structure -->
+    <section class="prizes-section">
+      <h2>🏆 Tournament Structure & Prizes</h2>
+      
+      <img src="prizepool-full.jpg" alt="Prize Pool Cards" style="width: 100%; max-width: 600px; border-radius: 12px; margin: 1.5rem auto; display: block;">
+      
+      <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Round 1: Cube Draft</h3>
+        <p style="color: #555;">Everyone plays one of 8 cubes. The <strong>8 pod winners</strong> advance to the finals.</p>
+        
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Finals: Vintage Cube</h3>
+        <p style="color: #555; margin-bottom: 0.75rem;">The 8 winners compete in Vintage Cube for the big prizes:</p>
+        <ul style="color: #555; margin-left: 1.5rem; margin-bottom: 1rem;">
+          <li><strong>1st:</strong> Lion's Eye Diamond</li>
+          <li><strong>2nd:</strong> Survival of the Fittest</li>
+          <li><strong>3rd/4th:</strong> Force of Will</li>
+          <li><strong>5th-8th:</strong> Windswept Heath</li>
+        </ul>
+        
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Consolation Round</h3>
+        <p style="color: #555; margin-bottom: 0.75rem;">Other players get to draft a second cube! Pod winners receive one of:</p>
+        <ul style="color: #555; margin-left: 1.5rem; columns: 2; column-gap: 2rem;">
+          <li>Goblin Welder</li>
+          <li>City of Brass</li>
+          <li>Worldly Tutor</li>
+          <li>Entomb</li>
+          <li>Pernicious Deed</li>
+          <li>Birds of Paradise</li>
+          <li>Anger of God</li>
+        </ul>
+        
+        <p style="margin-top: 1.5rem; color: #888; font-size: 0.85rem; font-style: italic;">
+          Note: If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.
+        </p>
+      </div>
+    </section>
+  </main>
+
   <footer>
-    <div class="light-leak light-leak--blue"></div>
-    <a href="mailto:info@aarebogemagic.ch" class="footer-cta">info@aarebogemagic.ch</a>
-    <div class="footer-links">
-      <a href="admin.html">Admin</a>
-    </div>
-    <span class="ghost-brand">CubeCon</span>
+    <a href="admin.html">Admin</a>
   </footer>
 
   <script type="module" src="app.js"></script>
-  
-  <script>
-    // Reveal on scroll
-    document.addEventListener('DOMContentLoaded', () => {
-      const reveals = document.querySelectorAll('.reveal');
-      
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-      
-      reveals.forEach(el => observer.observe(el));
-    });
-  </script>
 </body>
 </html>
