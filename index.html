@@ -8,59 +8,131 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Background Curtains Effect -->
-  <div class="background-curtains">
-    <div class="bg-base"></div>
-    <div class="curtains-container">
-      <div class="curtain curtain-1"></div>
-      <div class="curtain curtain-2"></div>
-      <div class="curtain curtain-3"></div>
-      <div class="curtain curtain-center"></div>
-      <div class="curtain curtain-4"></div>
-      <div class="curtain curtain-5"></div>
-      <div class="curtain curtain-6"></div>
+  <!-- Navigation -->
+  <nav>
+    <a href="#" class="brand">CubeCon</a>
+    <div class="nav-links">
+      <a href="#about" class="nav-link">About</a>
+      <a href="#prizes" class="nav-link">Prizes</a>
+      <a href="#cubes" class="nav-link">Cubes</a>
+      <a href="#register" class="nav-cta">Register</a>
     </div>
-    <div class="bg-fade"></div>
-    <div class="bg-noise"></div>
-  </div>
+  </nav>
 
-  <header>
-    <div class="header-content">
-      <!-- Trust Badge -->
-      <div class="trust-badge animate-in">
-        <div class="trust-avatars">
-          <img src="https://i.pravatar.cc/100?img=11" alt="Player">
-          <img src="https://i.pravatar.cc/100?img=12" alt="Player">
-          <img src="https://i.pravatar.cc/100?img=13" alt="Player">
-          <img src="https://i.pravatar.cc/100?img=14" alt="Player">
-        </div>
-        <span>Up to 64 cube drafters</span>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="light-leak orange"></div>
+    <div class="light-leak blue"></div>
+    
+    <div class="hero-content">
+      <div class="hero-image-container reveal">
+        <img src="prizepool-full.jpg" alt="Prize Pool">
       </div>
-
-      <img src="logo.png" alt="CubeCon Logo" class="logo animate-in delay-1">
-      <img src="title.png" alt="CUBECON" class="title-image animate-in delay-2">
-      <p class="subtitle animate-in delay-3">02.05.2026 · Kulturwerk 118, Sursee</p>
+      <h1 class="hero-title reveal">CubeCon</h1>
+      <p class="hero-subtitle reveal">The ultimate cube draft tournament. 64 players. 8 cubes. One champion.</p>
+      <p class="hero-date reveal">02.05.2026 · Sursee</p>
     </div>
-  </header>
+  </section>
 
-  <main>
-    <!-- Event Introduction (shown on landing page) -->
-    <section class="panel intro-panel animate-in" id="intro-panel">
-      <h2>Welcome to CubeCon 2026!</h2>
-      <p>Join us for an epic day of cube drafting at <strong>Kulturwerk 118, Sursee</strong> on <strong>May 2nd, 2026</strong>.</p>
-      <p>Up to <strong>64 players</strong> will be divided into <strong>8 pods</strong> based on your cube preferences.</p>
-      <p>Got an invite link? Use it to vote for your favorite cubes!</p>
+  <!-- Stats Grid -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <p class="stat-label">Players</p>
+        <p class="stat-value">64</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-label">Cubes</p>
+        <p class="stat-value">8</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-label">Venue</p>
+        <p class="stat-value">Kulturwerk 118</p>
+      </div>
+      <div class="stat-item">
+        <p class="stat-label">Date</p>
+        <p class="stat-value">May 2, 2026</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="content-section">
+    <div class="content-grid">
+      <div class="content-number">01</div>
+      <div class="content-body">
+        <h3>Welcome to CubeCon 2026</h3>
+        <p>Join us for an epic day of cube drafting at Kulturwerk 118, Sursee. Up to 64 players will be divided into 8 pods based on your cube preferences.</p>
+        <p>This isn't just another tournament—it's a celebration of the cube format. Each pod drafts a different cube, curated by passionate cube owners from across Switzerland.</p>
+        <p>Got an invite link? Use it to vote for your favorite cubes and shape the event.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prizes Section -->
+  <section id="prizes" class="content-section">
+    <div class="content-grid">
+      <div class="content-number">02</div>
+      <div class="content-body">
+        <h3>Tournament Structure & Prizes</h3>
+        
+        <p><strong>Round 1: Cube Draft</strong><br>
+        Everyone plays one of 8 cubes. The 8 pod winners advance to the finals.</p>
+        
+        <p><strong>Finals: Vintage Cube</strong><br>
+        The 8 winners compete in Vintage Cube for the big prizes:</p>
+        <ul>
+          <li>1st — Lion's Eye Diamond</li>
+          <li>2nd — Survival of the Fittest</li>
+          <li>3rd/4th — Force of Will</li>
+          <li>5th–8th — Windswept Heath</li>
+        </ul>
+        
+        <p><strong>Consolation Round</strong><br>
+        Other players get to draft a second cube! Pod winners receive one of:</p>
+        <ul>
+          <li>Goblin Welder</li>
+          <li>City of Brass</li>
+          <li>Worldly Tutor</li>
+          <li>Entomb</li>
+          <li>Pernicious Deed</li>
+          <li>Birds of Paradise</li>
+          <li>Wrath of God</li>
+        </ul>
+        
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 2rem;">
+          Note: If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="gallery-section">
+    <div class="gallery-full">
+      <img src="prizepool-full.jpg" alt="Prize Pool Cards">
+      <span class="gallery-caption">Prize Pool 2026</span>
+    </div>
+  </section>
+
+  <!-- Voting Panel Section -->
+  <section id="register" class="panel-section">
+    <!-- Intro Panel (shown on landing) -->
+    <div class="panel" id="intro-panel">
+      <h2>Join the Draft</h2>
+      <p>Got an invite link? Use it to vote for your favorite cubes and secure your spot at CubeCon 2026.</p>
+      <p>Voting helps us determine which 8 cubes will be played on the day of the event.</p>
       <div id="rejoin-section" style="display: none;">
         <p>Welcome back! You have an active voting session.</p>
         <button id="rejoin-btn" class="rejoin-btn">Continue Voting →</button>
       </div>
-    </section>
+    </div>
 
     <!-- Voting Panel (shown when user has invite) -->
-    <section class="panel voting-panel" id="voting-panel" style="display: none;">
+    <div class="panel" id="voting-panel" style="display: none;">
       <div class="voting-header">
-        <h2>🗳️ Your Votes</h2>
-        <p>Select your top 3-5 cubes!</p>
+        <h2>Your Votes</h2>
+        <p>Select your top 3-5 cubes</p>
       </div>
       <div class="vote-slots">
         <div class="vote-slot" data-rank="1">
@@ -89,81 +161,63 @@
           <button class="clear-vote" data-rank="5">×</button>
         </div>
       </div>
-      <button class="submit-votes" id="submit-votes" disabled>SUBMIT VOTES</button>
+      <button class="submit-votes" id="submit-votes" disabled>Submit Votes</button>
       <p class="voter-name">Voting as: <strong id="voter-name-display"></strong></p>
-    </section>
-
-    <!-- Voter Registration Modal -->
-    <div class="modal" id="register-modal" style="display: none;">
-      <div class="modal-content">
-        <h2>WELCOME!</h2>
-        <p>Enter your name to vote for your top 3 cubes.</p>
-        <input type="text" id="voter-name-input" placeholder="Your name" maxlength="50">
-        <button id="register-btn">START VOTING</button>
-      </div>
     </div>
+  </section>
 
-    <!-- Cubes Grid -->
-    <section class="cubes-section">
+  <!-- Voter Registration Modal -->
+  <div class="modal" id="register-modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Welcome</h2>
+      <p>Enter your name to vote for your top 3 cubes.</p>
+      <input type="text" id="voter-name-input" placeholder="Your name" maxlength="50">
+      <button id="register-btn">Start Voting</button>
+    </div>
+  </div>
+
+  <!-- Cubes Section -->
+  <section id="cubes" class="cubes-section">
+    <div class="section-header">
       <h2 id="cubes-heading" style="display: none;">Choose Your Cubes</h2>
-      <div class="cubes-grid" id="cubes-grid">
-        <div class="loading">Loading cubes...</div>
-      </div>
-    </section>
+      <p id="cubes-subheading" style="display: none;">Click to add to your votes</p>
+    </div>
+    <div class="cubes-grid" id="cubes-grid">
+      <div class="loading">Loading cubes...</div>
+    </div>
+  </section>
 
-    <!-- Tournament Structure -->
-    <section class="prizes-section">
-      <h2>🏆 Tournament Structure & Prizes</h2>
-      
-      <img src="prizepool-full.jpg" alt="Prize Pool Cards" class="prize-image">
-      
-      <div class="prizes-content">
-        <h3>Round 1: Cube Draft</h3>
-        <p>Everyone plays one of 8 cubes. The <strong>8 pod winners</strong> advance to the finals.</p>
-        
-        <h3>Finals: Vintage Cube</h3>
-        <p>The 8 winners compete in Vintage Cube for the big prizes:</p>
-        <ul>
-          <li><strong>1st:</strong> Lion's Eye Diamond</li>
-          <li><strong>2nd:</strong> Survival of the Fittest</li>
-          <li><strong>3rd/4th:</strong> Force of Will</li>
-          <li><strong>5th-8th:</strong> Windswept Heath</li>
-        </ul>
-        
-        <h3>Consolation Round</h3>
-        <p>Other players get to draft a second cube! Pod winners receive one of:</p>
-        <ul class="two-col">
-          <li>Goblin Welder</li>
-          <li>City of Brass</li>
-          <li>Worldly Tutor</li>
-          <li>Entomb</li>
-          <li>Pernicious Deed</li>
-          <li>Birds of Paradise</li>
-          <li>Anger of the Gods</li>
-        </ul>
-        
-        <p class="prizes-note">
-          Note: If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.
-        </p>
-      </div>
-    </section>
-
-    <!-- CTA Banner -->
-    <section class="special-banner">
-      <h2>Bring Your Own Cube!</h2>
-      <p>
-        Want to showcase your cube at CubeCon 2026? We're looking for cube owners who want to host a pod. Contact us to register your cube!
-      </p>
-      <a href="mailto:cubecon@example.com" class="btn-outline">
-        Contact Us →
-      </a>
-    </section>
-  </main>
-
+  <!-- Footer -->
   <footer>
-    <a href="admin.html">Admin</a>
+    <div class="light-leak blue"></div>
+    <a href="mailto:cubecon@example.com" class="footer-cta">Get in Touch</a>
+    <div class="footer-links">
+      <a href="admin.html">Admin</a>
+      <a href="#">Discord</a>
+    </div>
+    <span class="ghost-brand">CubeCon</span>
   </footer>
 
   <script type="module" src="app.js"></script>
+  
+  <!-- Reveal Animation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const reveals = document.querySelectorAll('.reveal');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add('visible');
+            }, index * 100);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      reveals.forEach(el => observer.observe(el));
+    });
+  </script>
 </body>
 </html>
