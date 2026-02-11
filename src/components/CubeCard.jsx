@@ -7,6 +7,8 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
     e.stopPropagation();
   };
 
+  const cubeName = cube.title || cube.name || 'Unnamed Cube';
+
   return (
     <div className="cube-card-wrapper">
       {voteRank && <span className="vote-badge">#{voteRank}</span>}
@@ -16,13 +18,13 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
         onClick={handleClick}
       >
         {cube.imageUrl ? (
-          <img src={cube.imageUrl} alt={cube.name} className="cube-image" />
+          <img src={cube.imageUrl} alt={cubeName} className="cube-image" />
         ) : (
           <div className="cube-image placeholder">🎲</div>
         )}
         
         <div className="cube-content">
-          <h3>{cube.name}</h3>
+          <h3>{cubeName}</h3>
           
           {cube.description && (
             <p className="description">{cube.description}</p>

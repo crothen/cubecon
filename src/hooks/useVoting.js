@@ -65,7 +65,7 @@ export default function useVoting() {
   const toggleVote = useCallback((cube) => {
     const cubeData = {
       id: cube.id,
-      name: cube.name || cube.cubeName || 'Unknown Cube',
+      name: cube.title || cube.name || cube.cubeName || 'Unknown Cube',
     };
 
     setVotes((currentVotes) => {
