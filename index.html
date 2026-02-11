@@ -8,29 +8,39 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Marquee Banner -->
+  <div class="marquee-banner">
+    <div class="marquee-content">
+      <span class="marquee-text">★ CubeCon 2026 ★ May 2nd ★ Kulturwerk 118 ★ Sursee ★ 64 Players ★ 8 Cubes ★</span>
+      <span class="marquee-text">★ CubeCon 2026 ★ May 2nd ★ Kulturwerk 118 ★ Sursee ★ 64 Players ★ 8 Cubes ★</span>
+      <span class="marquee-text">★ CubeCon 2026 ★ May 2nd ★ Kulturwerk 118 ★ Sursee ★ 64 Players ★ 8 Cubes ★</span>
+      <span class="marquee-text">★ CubeCon 2026 ★ May 2nd ★ Kulturwerk 118 ★ Sursee ★ 64 Players ★ 8 Cubes ★</span>
+    </div>
+  </div>
+
   <header>
     <div class="header-content">
       <img src="logo.png" alt="CubeCon Logo" class="logo">
-      <img src="title.png" alt="CUBECON" class="title-image">
+      <h1 class="hero-title">CubeCon</h1>
       <p class="subtitle">02.05.2026 · Kulturwerk 118, Sursee</p>
     </div>
   </header>
 
   <main>
-    <!-- Event Introduction (shown on landing page) -->
-    <section class="intro-panel sketchy" id="intro-panel">
+    <!-- Event Introduction -->
+    <section class="intro-panel" id="intro-panel">
       <h2>Welcome to CubeCon 2026!</h2>
       <p>Join us for an epic day of cube drafting at <strong>Kulturwerk 118, Sursee</strong> on <strong>May 2nd, 2026</strong>.</p>
       <p>Up to <strong>64 players</strong> will be divided into <strong>8 pods</strong> based on your cube preferences.</p>
       <p>Got an invite link? Use it to vote for your favorite cubes!</p>
-      <div id="rejoin-section" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e5;">
-        <p style="color: #555; margin-bottom: 0.75rem;">Welcome back! You have an active voting session.</p>
+      <div id="rejoin-section" style="display: none;">
+        <p style="color: #666; margin-bottom: 0.75rem;">Welcome back! You have an active voting session.</p>
         <button id="rejoin-btn" class="rejoin-btn">Continue Voting →</button>
       </div>
     </section>
 
-    <!-- Voting Panel (shown when user has invite) -->
-    <section class="voting-panel sketchy" id="voting-panel" style="display: none;">
+    <!-- Voting Panel -->
+    <section class="voting-panel" id="voting-panel" style="display: none;">
       <div class="voting-header">
         <h2>🗳️ Your Votes</h2>
         <p>Select your top 3-5 cubes!</p>
@@ -88,34 +98,34 @@
     <section class="prizes-section">
       <h2>🏆 Tournament Structure & Prizes</h2>
       
-      <img src="prizepool-full.jpg" alt="Prize Pool Cards" style="width: 100%; max-width: 600px; border-radius: 12px; margin: 1.5rem auto; display: block;">
+      <img src="prizepool-full.jpg" alt="Prize Pool Cards">
       
       <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Round 1: Cube Draft</h3>
-        <p style="color: #555;">Everyone plays one of 8 cubes. The <strong>8 pod winners</strong> advance to the finals.</p>
+        <h3>Round 1: Cube Draft</h3>
+        <p>Everyone plays one of 8 cubes. The <strong>8 pod winners</strong> advance to the finals.</p>
         
-        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Finals: Vintage Cube</h3>
-        <p style="color: #555; margin-bottom: 0.75rem;">The 8 winners compete in Vintage Cube for the big prizes:</p>
-        <ul style="color: #555; margin-left: 1.5rem; margin-bottom: 1rem;">
+        <h3>Finals: Vintage Cube</h3>
+        <p>The 8 winners compete in Vintage Cube for the big prizes:</p>
+        <ul>
           <li><strong>1st:</strong> Lion's Eye Diamond</li>
           <li><strong>2nd:</strong> Survival of the Fittest</li>
           <li><strong>3rd/4th:</strong> Force of Will</li>
           <li><strong>5th-8th:</strong> Windswept Heath</li>
         </ul>
         
-        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #1a1a1a;">Consolation Round</h3>
-        <p style="color: #555; margin-bottom: 0.75rem;">Other players get to draft a second cube! Pod winners receive one of:</p>
-        <ul style="color: #555; margin-left: 1.5rem; columns: 2; column-gap: 2rem;">
+        <h3>Consolation Round</h3>
+        <p>Other players get to draft a second cube! Pod winners receive one of:</p>
+        <ul style="columns: 2; column-gap: 2rem;">
           <li>Goblin Welder</li>
           <li>City of Brass</li>
           <li>Worldly Tutor</li>
           <li>Entomb</li>
           <li>Pernicious Deed</li>
           <li>Birds of Paradise</li>
-          <li>Anger of God</li>
+          <li>Wrath of God</li>
         </ul>
         
-        <p style="margin-top: 1.5rem; color: #888; font-size: 0.85rem; font-style: italic;">
+        <p class="note">
           Note: If there are significantly fewer than 64 players, the prize pool will be adapted. The structure remains the same.
         </p>
       </div>
@@ -123,6 +133,8 @@
   </main>
 
   <footer>
+    <a href="mailto:info@aarebogemagic.ch">Contact</a>
+    <span style="margin: 0 1rem; color: #999;">|</span>
     <a href="admin.html">Admin</a>
   </footer>
 
