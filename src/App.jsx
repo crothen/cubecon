@@ -291,9 +291,16 @@ function App() {
   const handleVote = (cube) => {
     if (!isVoting) return;
     
-    // Check if already voted
+    // Check if already voted - toggle off
     const existingIndex = votes.findIndex(v => v?.id === cube.id);
-    if (existingIndex >= 0) return;
+    if (existingIndex >= 0) {
+      // Unselect: remove and shift remaining votes up
+      const newVotes = [...votes];
+      newVotes.splice(existingIndex, 1);
+      newVotes.push(null); // Keep array length at 5
+      setVotes(newVotes);
+      return;
+    }
     
     // Find first empty slot
     const emptyIndex = votes.findIndex(v => v === null);
