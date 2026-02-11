@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cubes - public read, admin write
+    match /cubecon_cubes/{cubeId} {
+      allow read: if true;
+      allow write: if true;  // TODO: restrict to admin
+    }
+
+    // Votes - public read/write for voting
+    match /cubecon_votes/{voteId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Settings - public read, admin write
+    match /cubecon_settings/{settingId} {
+      allow read: if true;
+      allow write: if true;  // TODO: restrict to admin
+    }
+  }
+}

@@ -1,0 +1,546 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #faf9f7;
+  color: #2d2d2d;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background: #fff;
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.title-image {
+  max-width: 400px;
+  width: 90%;
+  height: auto;
+  mix-blend-mode: multiply;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Intro Panel */
+.intro-panel {
+  background: #fff;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.intro-panel h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.intro-panel p {
+  margin-bottom: 0.75rem;
+  color: #555;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.intro-panel p:last-child {
+  margin-bottom: 0;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.rejoin-btn {
+  background: #e94560;
+  color: #fff;
+  border: none;
+  padding: 0.875rem 2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 10px;
+}
+
+.rejoin-btn:hover {
+  background: #d63d56;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(233,69,96,0.3);
+}
+
+/* Panels */
+.voting-panel {
+  background: #fff;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.sketchy {
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.voting-header h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.02em;
+}
+
+.voting-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.vote-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+.vote-slot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #faf9f7;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.vote-slot:hover {
+  border-color: #ccc;
+}
+
+.vote-slot .rank {
+  font-family: 'Bangers', cursive;
+  font-size: 1.1rem;
+  color: #e94560;
+  min-width: 2rem;
+}
+
+.vote-slot .cube-name {
+  flex: 1;
+  color: #999;
+  font-size: 0.95rem;
+}
+
+.vote-slot.filled .cube-name {
+  color: #2d2d2d;
+  font-weight: 500;
+}
+
+.vote-slot .clear-vote {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.vote-slot.filled .clear-vote {
+  opacity: 1;
+}
+
+.vote-slot .clear-vote:hover {
+  color: #e94560;
+}
+
+.vote-slot.optional {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.vote-slot.optional.filled {
+  opacity: 1;
+  border-style: solid;
+}
+
+.submit-votes {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 0.875rem 2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 10px;
+}
+
+.submit-votes:hover:not(:disabled) {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.submit-votes:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.voter-name {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.voter-name strong {
+  color: #555;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-content h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.75rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.modal-content p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #e5e5e5;
+  background: #faf9f7;
+  color: #2d2d2d;
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #e94560;
+}
+
+.modal-content button {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 0.875rem 2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.modal-content button:hover {
+  background: #333;
+}
+
+/* Cubes Section */
+.cubes-section h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.cubes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 800px) {
+  .cubes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+/* Cube Card */
+.cube-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+
+.cube-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  border-color: #ddd;
+}
+
+.cube-card.selected {
+  border-color: #e94560;
+  box-shadow: 0 8px 24px rgba(233,69,96,0.15);
+}
+
+.cube-card.voted {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cube-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.cube-image.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.cube-content {
+  padding: 1.25rem;
+}
+
+.cube-content h3 {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.cube-content .description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.cube-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cube-content .cube-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #555;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  background: #f5f5f5;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.cube-content .cube-link:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.cube-meta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.vote-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  background: #e94560;
+  color: #fff;
+  padding: 0.375rem 0.875rem;
+  font-family: 'Bangers', cursive;
+  font-size: 1rem;
+  border-radius: 8px;
+  transform: rotate(3deg);
+  box-shadow: 0 4px 12px rgba(233,69,96,0.3);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.cube-card-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.cube-card-wrapper .cube-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cube-card-wrapper .cube-content {
+  flex: 1;
+}
+
+/* Prizes Section */
+.prizes-section {
+  background: #fff;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.prizes-section h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+  margin-top: 2rem;
+}
+
+footer a {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+footer a:hover {
+  background: #f0f0f0;
+  color: #1a1a1a;
+}
+
+.separator {
+  margin: 0 0.5rem;
+  color: #ddd;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #888;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .cubes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .title-image {
+    max-width: 280px;
+  }
+  
+  .logo {
+    width: 80px;
+  }
+  
+  main {
+    padding: 1rem;
+  }
+}

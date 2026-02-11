@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CubeCon Admin</title>
+  <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-section {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .admin-section h2 {
+      color: #ff6b6b;
+      margin-bottom: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #888;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .btn {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover {
+      background: #ff6b6b;
+    }
+    
+    .btn-secondary {
+      background: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #444;
+    }
+    
+    .cube-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .cube-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(0,0,0,0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .cube-item-info {
+      flex: 1;
+    }
+    
+    .cube-item-info h4 {
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+    
+    .cube-item-info p {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    
+    .cube-item-links {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .cube-item-links a {
+      color: #e94560;
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+    
+    .cube-item-links a:hover {
+      text-decoration: underline;
+    }
+    
+    .cube-item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+    
+    .btn-danger {
+      background: #c73e54;
+    }
+    
+    .votes-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .votes-table th,
+    .votes-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .votes-table th {
+      color: #888;
+      font-weight: normal;
+      font-size: 0.85rem;
+    }
+    
+    .invite-link {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .invite-link input {
+      flex: 1;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+      background: rgba(0,0,0,0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ff6b6b;
+    }
+    
+    .stat-card .label {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-content h2 {
+      color: #ff6b6b;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>⚙️ CubeCon Admin</h1>
+      <p class="subtitle">Manage cubes and view votes</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Settings -->
+    <section class="admin-section">
+      <h2>⚙️ Settings</h2>
+      <div class="form-group">
+        <label>Voting Deadline</label>
+        <div class="form-row">
+          <input type="date" id="deadline-date" value="2026-05-01">
+          <button class="btn" onclick="saveDeadline()">Save Deadline</button>
+        </div>
+        <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+          Current: <span id="current-deadline">Loading...</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Generate Invite Links -->
+    <section class="admin-section">
+      <h2>📨 Generate Invite Links</h2>
+      <div class="form-group">
+        <label>Number of invites to generate</label>
+        <div class="form-row">
+          <input type="number" id="invite-count" value="1" min="1" max="64">
+          <button class="btn" onclick="generateInvites()">Generate</button>
+        </div>
+      </div>
+      <div id="generated-invites" style="margin-top: 1rem;"></div>
+    </section>
+
+    <!-- Stats -->
+    <section class="admin-section">
+      <h2>📊 Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="number" id="total-cubes">0</div>
+          <div class="label">Cubes</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="total-votes">0</div>
+          <div class="label">Votes</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">64</div>
+          <div class="label">Max Players</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">8</div>
+          <div class="label">Pods</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Cube -->
+    <section class="admin-section">
+      <h2>➕ Add Cube</h2>
+      <form id="add-cube-form">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="cube-title" required placeholder="e.g., CUCube">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Description Link</label>
+            <input type="url" id="cube-desc-url" placeholder="https://cubecobra.com/cube/about/...">
+          </div>
+          <div class="form-group">
+            <label>List Link</label>
+            <input type="url" id="cube-list-url" placeholder="https://cubecobra.com/cube/list/...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="cube-description" placeholder="Brief description of the cube..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Image URL (optional)</label>
+          <input type="url" id="cube-image" placeholder="https://...">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Card Count</label>
+            <input type="number" id="cube-cards" placeholder="360">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="cube-category" placeholder="e.g., Vintage, Modern, Peasant">
+          </div>
+        </div>
+        <button type="submit" class="btn">Add Cube</button>
+      </form>
+    </section>
+
+    <!-- Existing Cubes -->
+    <section class="admin-section">
+      <h2>Cubes</h2>
+      <div class="cube-list" id="cube-list">
+        <p style="color: #666;">Loading...</p>
+      </div>
+    </section>
+
+    <!-- Votes -->
+    <section class="admin-section">
+      <h2>🗳️ Votes</h2>
+      <div id="votes-container">
+        <p style="color: #666;">Loading...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Modal -->
+  <div class="modal hidden" id="edit-modal">
+    <div class="modal-content">
+      <h2>✏️ Edit Cube</h2>
+      <form id="edit-cube-form">
+        <input type="hidden" id="edit-cube-id">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="edit-title" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Description Link</label>
+            <input type="url" id="edit-desc-url">
+          </div>
+          <div class="form-group">
+            <label>List Link</label>
+            <input type="url" id="edit-list-url">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="edit-description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="url" id="edit-image">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Card Count</label>
+            <input type="number" id="edit-cards">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="edit-category">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn">Save Changes</button>
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">← Back to voting</a>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      getDoc,
+      setDoc,
+      query,
+      orderBy 
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVFgw_hGcDQHf0iCo2adlkDOL6U7VsdaM",
+      authDomain: "cubecon-2026.firebaseapp.com",
+      projectId: "cubecon-2026",
+      storageBucket: "cubecon-2026.firebasestorage.app",
+      messagingSenderId: "661185183975",
+      appId: "1:661185183975:web:c2daafe316604a349be242"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let cubes = [];
+    const baseUrl = window.location.href.replace('admin.html', 'index.html');
+
+    // Load settings
+    async function loadSettings() {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'cubecon_settings', 'config'));
+        if (settingsDoc.exists()) {
+          const data = settingsDoc.data();
+          if (data.votingDeadline) {
+            const deadline = new Date(data.votingDeadline);
+            document.getElementById('deadline-date').value = deadline.toISOString().split('T')[0];
+            document.getElementById('current-deadline').textContent = deadline.toLocaleDateString();
+          } else {
+            document.getElementById('current-deadline').textContent = 'Not set';
+          }
+        } else {
+          document.getElementById('current-deadline').textContent = 'Not set';
+        }
+      } catch (err) {
+        console.error('Error loading settings:', err);
+        document.getElementById('current-deadline').textContent = 'Error loading';
+      }
+    }
+
+    // Save deadline
+    window.saveDeadline = async function() {
+      const dateValue = document.getElementById('deadline-date').value;
+      if (!dateValue) return;
+      
+      const deadline = new Date(dateValue + 'T23:59:59');
+      
+      try {
+        await setDoc(doc(db, 'cubecon_settings', 'config'), {
+          votingDeadline: deadline.toISOString()
+        }, { merge: true });
+        
+        document.getElementById('current-deadline').textContent = deadline.toLocaleDateString();
+        alert('Deadline saved!');
+      } catch (err) {
+        console.error('Error saving deadline:', err);
+        alert('Error saving deadline');
+      }
+    };
+
+    // Generate invite links
+    window.generateInvites = function() {
+      const count = parseInt(document.getElementById('invite-count').value) || 1;
+      const container = document.getElementById('generated-invites');
+      
+      let links = [];
+      for (let i = 0; i < count; i++) {
+        const code = 'cc26_' + Math.random().toString(36).substr(2, 9);
+        links.push(baseUrl + '?invite=' + code);
+      }
+      
+      container.innerHTML = `
+        <textarea style="width: 100%; height: 150px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.75rem; color: #fff; font-family: monospace; font-size: 0.85rem;">${links.join('\n')}</textarea>
+        <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="copyGeneratedLinks()">Copy All</button>
+      `;
+    };
+    
+    window.copyGeneratedLinks = function() {
+      const textarea = document.querySelector('#generated-invites textarea');
+      textarea.select();
+      document.execCommand('copy');
+      alert('Links copied!');
+    };
+
+    // Load cubes
+    async function loadCubes() {
+      try {
+        const q = query(collection(db, 'cubecon_cubes'), orderBy('order', 'asc'));
+        const snapshot = await getDocs(q);
+        
+        cubes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        document.getElementById('total-cubes').textContent = cubes.length;
+        renderCubeList();
+      } catch (err) {
+        console.error('Error loading cubes:', err);
+      }
+    }
+
+    function renderCubeList() {
+      const list = document.getElementById('cube-list');
+      
+      if (cubes.length === 0) {
+        list.innerHTML = '<p style="color: #666;">No cubes yet. Add one above!</p>';
+        return;
+      }
+      
+      list.innerHTML = cubes.map(cube => `
+        <div class="cube-item">
+          <div class="cube-item-info">
+            <h4>${cube.title}</h4>
+            <p>${cube.description || 'No description'}</p>
+            <div class="cube-item-links">
+              ${cube.descriptionUrl ? `<a href="${cube.descriptionUrl}" target="_blank">📖 Description</a>` : ''}
+              ${cube.listUrl ? `<a href="${cube.listUrl}" target="_blank">📋 List</a>` : ''}
+              ${cube.cubecobraUrl && !cube.descriptionUrl && !cube.listUrl ? `<a href="${cube.cubecobraUrl}" target="_blank">🔗 CubeCobra</a>` : ''}
+            </div>
+          </div>
+          <div class="cube-item-actions">
+            <button class="btn btn-sm btn-secondary" onclick="editCube('${cube.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteCube('${cube.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Load votes
+    async function loadVotes() {
+      try {
+        const snapshot = await getDocs(collection(db, 'cubecon_votes'));
+        const votes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        document.getElementById('total-votes').textContent = votes.length;
+        
+        const container = document.getElementById('votes-container');
+        
+        if (votes.length === 0) {
+          container.innerHTML = '<p style="color: #666;">No votes yet.</p>';
+          return;
+        }
+        
+        container.innerHTML = `
+          <table class="votes-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>#1</th>
+                <th>#2</th>
+                <th>#3</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${votes.map(vote => `
+                <tr>
+                  <td>${vote.name}</td>
+                  <td>${getCubeName(vote.votes[0])}</td>
+                  <td>${getCubeName(vote.votes[1])}</td>
+                  <td>${getCubeName(vote.votes[2])}</td>
+                  <td>${new Date(vote.submittedAt).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        console.error('Error loading votes:', err);
+      }
+    }
+
+    function getCubeName(cubeId) {
+      const cube = cubes.find(c => c.id === cubeId);
+      return cube ? cube.title : 'Unknown';
+    }
+
+    // Add cube
+    document.getElementById('add-cube-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const cube = {
+        title: document.getElementById('cube-title').value.trim(),
+        descriptionUrl: document.getElementById('cube-desc-url').value.trim() || null,
+        listUrl: document.getElementById('cube-list-url').value.trim() || null,
+        description: document.getElementById('cube-description').value.trim(),
+        imageUrl: document.getElementById('cube-image').value.trim() || null,
+        cardCount: parseInt(document.getElementById('cube-cards').value) || null,
+        category: document.getElementById('cube-category').value.trim() || null,
+        order: cubes.length,
+        createdAt: new Date().toISOString()
+      };
+      
+      try {
+        await addDoc(collection(db, 'cubecon_cubes'), cube);
+        e.target.reset();
+        await loadCubes();
+        await loadVotes();
+      } catch (err) {
+        console.error('Error adding cube:', err);
+        alert('Error adding cube');
+      }
+    });
+
+    // Edit cube
+    window.editCube = function(cubeId) {
+      const cube = cubes.find(c => c.id === cubeId);
+      if (!cube) return;
+      
+      document.getElementById('edit-cube-id').value = cubeId;
+      document.getElementById('edit-title').value = cube.title || '';
+      document.getElementById('edit-desc-url').value = cube.descriptionUrl || cube.cubecobraUrl || '';
+      document.getElementById('edit-list-url').value = cube.listUrl || '';
+      document.getElementById('edit-description').value = cube.description || '';
+      document.getElementById('edit-image').value = cube.imageUrl || '';
+      document.getElementById('edit-cards').value = cube.cardCount || '';
+      document.getElementById('edit-category').value = cube.category || '';
+      
+      document.getElementById('edit-modal').classList.remove('hidden');
+    };
+    
+    window.closeEditModal = function() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    };
+    
+    document.getElementById('edit-cube-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const cubeId = document.getElementById('edit-cube-id').value;
+      const updates = {
+        title: document.getElementById('edit-title').value.trim(),
+        descriptionUrl: document.getElementById('edit-desc-url').value.trim() || null,
+        listUrl: document.getElementById('edit-list-url').value.trim() || null,
+        description: document.getElementById('edit-description').value.trim(),
+        imageUrl: document.getElementById('edit-image').value.trim() || null,
+        cardCount: parseInt(document.getElementById('edit-cards').value) || null,
+        category: document.getElementById('edit-category').value.trim() || null,
+        updatedAt: new Date().toISOString()
+      };
+      
+      try {
+        await updateDoc(doc(db, 'cubecon_cubes', cubeId), updates);
+        closeEditModal();
+        await loadCubes();
+      } catch (err) {
+        console.error('Error updating cube:', err);
+        alert('Error updating cube');
+      }
+    });
+
+    // Delete cube
+    window.deleteCube = async function(cubeId) {
+      if (!confirm('Delete this cube?')) return;
+      
+      try {
+        await deleteDoc(doc(db, 'cubecon_cubes', cubeId));
+        await loadCubes();
+      } catch (err) {
+        console.error('Error deleting cube:', err);
+        alert('Error deleting cube');
+      }
+    };
+
+    // Init
+    loadSettings();
+    loadCubes().then(loadVotes);
+  </script>
+</body>
+</html>
