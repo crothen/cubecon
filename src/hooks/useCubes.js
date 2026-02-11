@@ -12,10 +12,15 @@ export default function useCubes() {
       try {
         setIsLoading(true);
         const snapshot = await getDocs(collection(db, 'cubecon_cubes'));
-        const cubesData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const cubesData = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            // Normalize: ensure 'name' field exists
+            name: data.title || data.name || 'Unnamed Cube',
+          };
+        });
         setCubes(cubesData);
       } catch (err) {
         console.error('Error fetching cubes:', err);

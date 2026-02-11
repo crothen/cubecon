@@ -7,7 +7,7 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
     e.stopPropagation();
   };
 
-  const cubeName = cube.title || cube.name || 'Unnamed Cube';
+  const cubeName = cube.name || cube.title || 'Unnamed Cube';
 
   return (
     <div className="cube-card-wrapper">
