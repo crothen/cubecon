@@ -40,6 +40,7 @@ export default function CubesGrid({ cubes, votes, onVote, isVoting, isLoading })
               isSelected={voteRank !== null}
               voteRank={voteRank}
               onVote={onVote}
+              isVoting={isVoting}
             />
           );
         })}

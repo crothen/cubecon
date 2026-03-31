@@ -1,6 +1,8 @@
-export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
+export default function CubeCard({ cube, isSelected, voteRank, onVote, isVoting }) {
   const handleClick = () => {
-    onVote(cube);
+    if (isVoting && onVote) {
+      onVote(cube);
+    }
   };
 
   const handleLinkClick = (e) => {
@@ -8,14 +10,17 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
   };
 
   const cubeName = cube.name || cube.title || 'Unnamed Cube';
+  const listUrl = cube.listUrl || cube.cubeCobraUrl;
+  const descUrl = cube.descriptionUrl;
 
   return (
     <div className="cube-card-wrapper">
       {voteRank && <span className="vote-badge">#{voteRank}</span>}
       
       <div
-        className={`cube-card ${isSelected ? 'selected' : ''}`}
+        className={`cube-card ${isSelected ? 'selected' : ''} ${!isVoting ? 'not-voting' : ''}`}
         onClick={handleClick}
+        style={{ cursor: isVoting ? 'pointer' : 'default' }}
       >
         {cube.imageUrl ? (
           <img src={cube.imageUrl} alt={cubeName} className="cube-image" />
@@ -31,15 +36,26 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote }) {
           )}
           
           <div className="cube-links">
-            {cube.cubeCobraUrl && (
+            {listUrl && (
               <a
-                href={cube.cubeCobraUrl}
+                href={listUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cube-link"
                 onClick={handleLinkClick}
               >
-                Cube Cobra
+                📋 Card List
+              </a>
+            )}
+            {descUrl && (
+              <a
+                href={descUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cube-link"
+                onClick={handleLinkClick}
+              >
+                📖 About
               </a>
             )}
           </div>
