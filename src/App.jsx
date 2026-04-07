@@ -102,6 +102,7 @@ export default function App() {
           onClearVote={clearVote}
           onSubmit={submitVotes}
           voterName={voterName}
+          setVoterName={setVoterName}
           canSubmit={canSubmit}
         />
       );

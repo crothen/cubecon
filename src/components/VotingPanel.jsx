@@ -18,7 +18,29 @@ function VoteSlot({ rank, vote, onClear }) {
   );
 }
 
-export default function VotingPanel({ votes, onClearVote, onSubmit, voterName, canSubmit }) {
+import { useState } from 'react';
+
+export default function VotingPanel({ votes, onClearVote, onSubmit, voterName, setVoterName, canSubmit }) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(voterName);
+
+  const handleNameEdit = () => {
+    setTempName(voterName);
+    setIsEditingName(true);
+  };
+
+  const handleNameSave = () => {
+    if (tempName.trim()) {
+      setVoterName(tempName.trim());
+      setIsEditingName(false);
+    }
+  };
+
+  const handleNameCancel = () => {
+    setTempName(voterName);
+    setIsEditingName(false);
+  };
+
   return (
     <section className="voting-panel" id="voting-panel">
       <div className="voting-header">
@@ -45,9 +67,30 @@ export default function VotingPanel({ votes, onClearVote, onSubmit, voterName, c
         SUBMIT VOTES
       </button>
       
-      <p className="voter-name">
-        Voting as: <strong>{voterName}</strong>
-      </p>
+      <div className="voter-name-section">
+        {isEditingName ? (
+          <div className="name-edit-row">
+            <input
+              type="text"
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              className="name-input"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleNameSave();
+                if (e.key === 'Escape') handleNameCancel();
+              }}
+            />
+            <button onClick={handleNameSave} className="name-btn save">✓</button>
+            <button onClick={handleNameCancel} className="name-btn cancel">✕</button>
+          </div>
+        ) : (
+          <p className="voter-name">
+            Voting as: <strong>{voterName}</strong>
+            <button onClick={handleNameEdit} className="edit-name-btn">✏️</button>
+          </p>
+        )}
+      </div>
     </section>
   );
 }

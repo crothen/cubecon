@@ -384,10 +384,67 @@ main {
   cursor: not-allowed;
 }
 
-.voter-name {
+.voter-name-section {
   margin-top: 1rem;
+}
+
+.voter-name {
   font-size: 0.85rem;
   color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.edit-name-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0.25rem;
+}
+
+.edit-name-btn:hover {
+  opacity: 1;
+}
+
+.name-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.name-input {
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border: 2px solid var(--charcoal);
+  background: var(--paper);
+  max-width: 200px;
+}
+
+.name-btn {
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--charcoal);
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.name-btn.save:hover {
+  background: var(--charcoal);
+  color: var(--paper);
+}
+
+.name-btn.cancel:hover {
+  background: var(--crimson);
+  color: white;
+  border-color: var(--crimson);
 }
 
 /* ========================================
