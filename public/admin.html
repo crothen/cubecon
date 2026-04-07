@@ -371,12 +371,15 @@
     /* Tables */
     .table-wrapper {
       overflow-x: auto;
-      margin: -1.25rem;
+      margin: 0;
       padding: 0;
+      max-height: 500px;
+      overflow-y: auto;
     }
 
     table {
       width: 100%;
+      min-width: 600px;
       border-collapse: collapse;
       font-size: 0.875rem;
     }
@@ -385,6 +388,18 @@
       padding: 0.875rem 1rem;
       text-align: left;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    td:nth-child(4) {
+      white-space: normal;
+      max-width: 300px;
     }
 
     th {

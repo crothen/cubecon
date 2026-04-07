@@ -34,10 +34,12 @@ export default function useVoting() {
         if (savedVotes.length > 0) {
           const restoredVotes = Array(MAX_VOTES).fill(null);
           savedVotes.forEach((vote, index) => {
-            restoredVotes[index] = {
-              id: vote.cubeId,
-              name: vote.cubeName,
-            };
+            if (index < MAX_VOTES) {
+              restoredVotes[index] = {
+                id: vote.cubeId || vote.id,
+                name: vote.cubeName || vote.name || 'Unknown Cube',
+              };
+            }
           });
           setVotes(restoredVotes);
         }

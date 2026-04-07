@@ -22,18 +22,22 @@ function InvalidInvite({ error }) {
 }
 
 function SubmittedPanel({ voterName, votes, onEdit }) {
+  const validVotes = votes.filter(v => v);
   return (
     <section className="intro-panel">
       <h2>✅ Votes Submitted!</h2>
       <p>Thank you for voting, <strong>{voterName}</strong>!</p>
       <p>Your votes have been recorded:</p>
-      <ol style={{ textAlign: 'left', maxWidth: '300px', margin: '1rem auto' }}>
-        {votes.filter(v => v).map((vote, i) => (
+      <ol style={{ textAlign: 'left', margin: '1rem 0', paddingLeft: '1.5rem' }}>
+        {validVotes.map((vote, i) => (
           <li key={i} style={{ marginBottom: '0.5rem' }}>
-            <strong>{vote.name || vote.cubeName}</strong>
+            <strong>{vote.name || vote.cubeName || 'Unknown Cube'}</strong>
           </li>
         ))}
       </ol>
+      {validVotes.length === 0 && (
+        <p style={{ color: '#888' }}>No votes recorded yet.</p>
+      )}
       <button onClick={onEdit} className="rejoin-btn" style={{ marginTop: '1rem' }}>
         Edit Votes
       </button>
