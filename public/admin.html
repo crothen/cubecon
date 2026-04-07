@@ -487,6 +487,42 @@
       text-decoration: none;
     }
 
+    .vote-counts {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .vote-label {
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .vote-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+
+    .vote-cell.opt {
+      background: var(--bg-input);
+      color: var(--text-muted);
+    }
+
+    .vote-total {
+      color: var(--text-muted);
+      margin-left: 0.25rem;
+    }
+
     .cube-links a:hover {
       text-decoration: underline;
     }
@@ -872,9 +908,11 @@
     $('btnLogoutDenied').addEventListener('click', () => signOut(auth));
 
     // Load All Data
-    function loadAll() {
-      loadCubes();
-      loadInvites();
+    let allInvites = [];
+    
+    async function loadAll() {
+      await loadInvites();
+      await loadCubes();
     }
 
     // Cubes
@@ -889,13 +927,30 @@
       }
     }
 
+    function getVoteCountsForCube(cubeId) {
+      // Count votes by rank (1-5) for this cube
+      const counts = [0, 0, 0, 0, 0];
+      const submitted = allInvites.filter(i => i.status === 'submitted' && i.votes);
+      submitted.forEach(inv => {
+        inv.votes.forEach(vote => {
+          if (vote.cubeId === cubeId && vote.rank >= 1 && vote.rank <= 5) {
+            counts[vote.rank - 1]++;
+          }
+        });
+      });
+      return counts;
+    }
+
     function renderCubeList() {
       const list = $('cube-list');
       if (cubes.length === 0) {
         list.innerHTML = '<p class="empty">No cubes yet. Add one above!</p>';
         return;
       }
-      list.innerHTML = cubes.map(cube => `
+      list.innerHTML = cubes.map(cube => {
+        const voteCounts = getVoteCountsForCube(cube.id);
+        const totalVotes = voteCounts.reduce((a, b) => a + b, 0);
+        return `
         <div class="cube-item">
           <div class="cube-info">
             <h4>${cube.title || 'Untitled'}</h4>
@@ -904,13 +959,24 @@
               ${cube.descriptionUrl ? `<a href="${cube.descriptionUrl}" target="_blank">📖 Description</a>` : ''}
               ${cube.listUrl ? `<a href="${cube.listUrl}" target="_blank">📋 List</a>` : ''}
             </div>
+            ${totalVotes > 0 ? `
+            <div class="vote-counts">
+              <span class="vote-label">Votes:</span>
+              <span class="vote-cell" title="#1 votes">${voteCounts[0]}</span>
+              <span class="vote-cell" title="#2 votes">${voteCounts[1]}</span>
+              <span class="vote-cell" title="#3 votes">${voteCounts[2]}</span>
+              <span class="vote-cell opt" title="#4 votes">${voteCounts[3]}</span>
+              <span class="vote-cell opt" title="#5 votes">${voteCounts[4]}</span>
+              <span class="vote-total">(${totalVotes})</span>
+            </div>
+            ` : ''}
           </div>
           <div class="cube-actions">
             <button class="btn btn-sm btn-secondary" data-action="edit" data-id="${cube.id}">Edit</button>
             <button class="btn btn-sm btn-danger" data-action="delete" data-id="${cube.id}">Delete</button>
           </div>
         </div>
-      `).join('');
+      `}).join('');
 
       list.querySelectorAll('[data-action="edit"]').forEach(btn => {
         btn.addEventListener('click', () => editCube(btn.dataset.id));
@@ -924,19 +990,19 @@
     async function loadInvites() {
       try {
         const snapshot = await getDocs(collection(db, 'cubecon_invites'));
-        const invites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        allInvites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         
-        const submitted = invites.filter(i => i.status === 'submitted');
-        $('total-invites').textContent = invites.length;
+        const submitted = allInvites.filter(i => i.status === 'submitted');
+        $('total-invites').textContent = allInvites.length;
         $('total-votes').textContent = submitted.length;
         
         const tbody = $('invites-tbody');
-        if (invites.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" class="empty">No invites yet</td></tr>';
+        if (allInvites.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty">No invites yet</td></tr>';
           return;
         }
 
-        tbody.innerHTML = invites.map(inv => `
+        tbody.innerHTML = allInvites.map(inv => `
           <tr>
             <td style="font-family: monospace; font-size: 0.75rem;">${inv.id}</td>
             <td>${inv.name || '—'}</td>

@@ -25,7 +25,7 @@ function SubmittedPanel({ voterName, votes, onEdit }) {
   const validVotes = votes.filter(v => v);
   return (
     <section className="intro-panel">
-      <h2>✅ Votes Submitted!</h2>
+      <h2>Votes Submitted!</h2>
       <p>Thank you for voting, <strong>{voterName}</strong>!</p>
       <p>Your votes have been recorded:</p>
       <ol style={{ textAlign: 'left', margin: '1rem 0', paddingLeft: '1.5rem' }}>
