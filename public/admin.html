@@ -1212,9 +1212,16 @@
           const code = 'test_' + Math.random().toString(36).substr(2, 9);
           const name = '[Test] ' + TEST_NAMES[i % TEST_NAMES.length] + ' ' + Math.floor(i / TEST_NAMES.length + 1);
           
-          // Pick 5 random cubes
+          // Determine number of votes: 70% vote for 5, 20% for 3, 10% for 4
+          let numVotes;
+          const rand = Math.random();
+          if (rand < 0.2) numVotes = 3;       // 20%
+          else if (rand < 0.3) numVotes = 4;  // 10%
+          else numVotes = 5;                   // 70%
+          
+          // Pick random cubes
           const shuffledCubes = shuffleArray(cubeIds);
-          const votes = shuffledCubes.slice(0, 5).map((cubeId, idx) => {
+          const votes = shuffledCubes.slice(0, numVotes).map((cubeId, idx) => {
             const cube = cubes.find(c => c.id === cubeId);
             return {
               cubeId: cubeId,
