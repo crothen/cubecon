@@ -907,6 +907,26 @@
     $('btnLogout').addEventListener('click', () => signOut(auth));
     $('btnLogoutDenied').addEventListener('click', () => signOut(auth));
 
+    // Google Sheets webhook
+    const SHEETS_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwhDBPKxNhnPrGHGW8xnINo0jx9BIykqf6wWqLjgNZ6sG1rbwiRa8t_sfjMBn_6uFan6g/exec';
+    
+    async function syncCubesToSheets() {
+      try {
+        await fetch(SHEETS_WEBHOOK, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'cubes',
+            cubes: cubes.map(c => ({ id: c.id, name: c.title }))
+          })
+        });
+        console.log('Cubes synced to Sheets');
+      } catch (err) {
+        console.warn('Sheets sync failed:', err);
+      }
+    }
+
     // Load All Data
     let allInvites = [];
     
@@ -922,6 +942,8 @@
         cubes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         $('total-cubes').textContent = cubes.length;
         renderCubeList();
+        // Auto-sync cubes to Google Sheets
+        syncCubesToSheets();
       } catch (err) {
         console.error('Error loading cubes:', err);
       }
