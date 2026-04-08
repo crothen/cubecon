@@ -1,13 +1,23 @@
 const SHEET_ID = '103B60ks7_0I7lLotaDc5dQckGy8Vxf1H7amFgHkMAFs';
 
+// Add custom menu when spreadsheet opens
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('🎲 CubeCon')
+    .addItem('Generate Pods', 'generatePods')
+    .addToUi();
+}
+
 function doPost(e) {
   const data = JSON.parse(e.postData.contents);
   const ss = SpreadsheetApp.openById(SHEET_ID);
   
   if (data.type === 'vote') {
     syncVote(ss, data);
+    generatePods(); // Auto-regenerate pods
   } else if (data.type === 'cubes') {
     syncCubes(ss, data.cubes);
+    generatePods(); // Auto-regenerate pods
   }
   
   return ContentService.createTextOutput(JSON.stringify({success: true}))
@@ -60,7 +70,7 @@ function syncCubes(ss, cubes) {
   });
 }
 
-// Run this manually or on trigger to generate pods
+// Generate pods - runs automatically on vote/cube changes, or manually from menu
 function generatePods() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const votesSheet = ss.getSheetByName('votes');
@@ -69,6 +79,7 @@ function generatePods() {
   
   if (!votesSheet || votesSheet.getLastRow() < 2) {
     podsSheet.clear();
+    podsSheet.appendRow(['Pod (Cube)', 'Player Count', 'Players', 'Preference Level']);
     podsSheet.appendRow(['No votes yet']);
     return;
   }
@@ -90,9 +101,8 @@ function generatePods() {
     };
   });
   
-  // Collect all cubes that received votes
-  const allCubes = new Set();
-  Object.values(players).forEach(p => p.prefs.forEach(c => allCubes.add(c)));
+  // Track which preference level each player got assigned at
+  const playerPrefLevel = {};
   
   // Greedy allocation: prioritize higher preferences
   const pods = {}; // cubeId -> [playerCodes]
@@ -110,6 +120,7 @@ function generatePods() {
       // Only add if pod not full (max 8)
       if (pods[cubeId].length < 8) {
         pods[cubeId].push(code);
+        playerPrefLevel[code] = prefLevel + 1;
         assigned.add(code);
       }
     });
@@ -123,16 +134,21 @@ function generatePods() {
     if (members.length >= 6) {
       validPods[cubeId] = members;
     } else {
-      members.forEach(code => unassigned.push(code));
+      members.forEach(code => {
+        delete playerPrefLevel[code];
+        unassigned.push(code);
+      });
     }
   });
   
   // Try to fit unassigned into existing pods (up to 8)
   unassigned.forEach(code => {
     const player = players[code];
-    for (const pref of player.prefs) {
+    for (let i = 0; i < player.prefs.length; i++) {
+      const pref = player.prefs[i];
       if (validPods[pref] && validPods[pref].length < 8) {
         validPods[pref].push(code);
+        playerPrefLevel[code] = i + 1;
         return;
       }
     }
@@ -140,24 +156,52 @@ function generatePods() {
     for (const [cubeId, members] of Object.entries(validPods)) {
       if (members.length < 8) {
         members.push(code);
+        playerPrefLevel[code] = '—';
         return;
       }
     }
   });
   
+  // Count unassigned
+  const stillUnassigned = Object.keys(players).filter(code => !Object.keys(playerPrefLevel).includes(code));
+  
   // Write pods sheet
   podsSheet.clear();
   podsSheet.appendRow(['Pod (Cube)', 'Player Count', 'Players']);
   
-  Object.entries(validPods).forEach(([cubeId, members]) => {
+  // Sort pods by player count descending
+  const sortedPods = Object.entries(validPods).sort((a, b) => b[1].length - a[1].length);
+  
+  sortedPods.forEach(([cubeId, members]) => {
     const cubeName = cubeNames[cubeId] || cubeId;
-    const playerNames = members.map(code => players[code]?.name || code).join(', ');
-    podsSheet.appendRow([cubeName, members.length, playerNames]);
+    const playerList = members.map(code => {
+      const name = players[code]?.name || code;
+      const pref = playerPrefLevel[code];
+      return `${name} (#${pref})`;
+    }).join(', ');
+    podsSheet.appendRow([cubeName, members.length, playerList]);
   });
   
-  // Summary row
-  podsSheet.appendRow([]);
-  podsSheet.appendRow(['Total Pods', Object.keys(validPods).length]);
+  // Summary
+  podsSheet.appendRow(['']);
+  podsSheet.appendRow(['--- Summary ---']);
+  podsSheet.appendRow(['Total Pods', sortedPods.length]);
   podsSheet.appendRow(['Total Assigned', Object.values(validPods).flat().length]);
   podsSheet.appendRow(['Total Voters', Object.keys(players).length]);
+  if (stillUnassigned.length > 0) {
+    podsSheet.appendRow(['⚠️ Unassigned', stillUnassigned.length, stillUnassigned.map(c => players[c]?.name || c).join(', ')]);
+  }
+  
+  // Preference distribution
+  const prefCounts = [0, 0, 0, 0, 0];
+  Object.values(playerPrefLevel).forEach(p => {
+    if (typeof p === 'number' && p >= 1 && p <= 5) prefCounts[p-1]++;
+  });
+  podsSheet.appendRow(['']);
+  podsSheet.appendRow(['--- Preference Distribution ---']);
+  podsSheet.appendRow(['#1 choice', prefCounts[0]]);
+  podsSheet.appendRow(['#2 choice', prefCounts[1]]);
+  podsSheet.appendRow(['#3 choice', prefCounts[2]]);
+  podsSheet.appendRow(['#4 choice', prefCounts[3]]);
+  podsSheet.appendRow(['#5 choice', prefCounts[4]]);
 }

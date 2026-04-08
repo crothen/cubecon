@@ -3,21 +3,6 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const INVITES_COLLECTION = 'cubecon_invites';
-const SHEETS_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwhDBPKxNhnPrGHGW8xnINo0jx9BIykqf6wWqLjgNZ6sG1rbwiRa8t_sfjMBn_6uFan6g/exec';
-
-// Fire-and-forget webhook to sync with Google Sheets
-const syncToSheets = async (data) => {
-  try {
-    await fetch(SHEETS_WEBHOOK, {
-      method: 'POST',
-      mode: 'no-cors', // Apps Script doesn't support CORS
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-  } catch (err) {
-    console.warn('Sheets sync failed (non-critical):', err);
-  }
-};
 
 export default function useInvite() {
   const [inviteCode, setInviteCode] = useState(null);
@@ -106,14 +91,7 @@ export default function useInvite() {
         status: 'submitted',
       });
 
-      // Sync to Google Sheets (fire-and-forget)
-      syncToSheets({
-        type: 'vote',
-        inviteCode: inviteCode,
-        name: name,
-        votes: voteData,
-        submittedAt: submittedAt,
-      });
+      // Sheets sync now handled by Firebase Function (server-side)
 
       setInvite((prev) => ({
         ...prev,

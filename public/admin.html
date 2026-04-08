@@ -784,6 +784,23 @@
           </div>
         </div>
       </div>
+
+      <!-- Test Data Section -->
+      <div class="section" style="border-color: var(--warning);">
+        <div class="section-header">
+          <h2>🧪 Test Data</h2>
+        </div>
+        <div class="section-body">
+          <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.85rem;">
+            Generate fake voters for testing. All test names start with "[Test]".
+          </p>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary" id="generateTestDataBtn">Generate 60 Test Voters</button>
+            <button class="btn btn-danger" id="clearTestDataBtn">Clear All Test Data</button>
+          </div>
+          <div id="test-data-status" style="margin-top: 1rem; font-size: 0.85rem;"></div>
+        </div>
+      </div>
     </main>
 
     <footer>
@@ -907,27 +924,8 @@
     $('btnLogout').addEventListener('click', () => signOut(auth));
     $('btnLogoutDenied').addEventListener('click', () => signOut(auth));
 
-    // Google Sheets webhook
-    const SHEETS_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwhDBPKxNhnPrGHGW8xnINo0jx9BIykqf6wWqLjgNZ6sG1rbwiRa8t_sfjMBn_6uFan6g/exec';
-    
-    async function syncCubesToSheets() {
-      try {
-        await fetch(SHEETS_WEBHOOK, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'cubes',
-            cubes: cubes.map(c => ({ id: c.id, name: c.title }))
-          })
-        });
-        console.log('Cubes synced to Sheets');
-      } catch (err) {
-        console.warn('Sheets sync failed:', err);
-      }
-    }
-
     // Load All Data
+    // Note: Sheets sync now handled by Firebase Functions (server-side)
     let allInvites = [];
     
     async function loadAll() {
@@ -942,8 +940,6 @@
         cubes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         $('total-cubes').textContent = cubes.length;
         renderCubeList();
-        // Auto-sync cubes to Google Sheets
-        syncCubesToSheets();
       } catch (err) {
         console.error('Error loading cubes:', err);
       }
@@ -1172,6 +1168,115 @@
       
       icon.textContent = isCollapsed ? '▶' : '▼';
       btn.innerHTML = `<span id="invites-toggle-icon">${isCollapsed ? '▶' : '▼'}</span> ${isCollapsed ? 'Show' : 'Hide'} Details`;
+    });
+
+    // Test Data Functions
+    const TEST_NAMES = [
+      'Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry',
+      'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Noah', 'Olivia', 'Peter',
+      'Quinn', 'Ruby', 'Sam', 'Tina', 'Uma', 'Victor', 'Wendy', 'Xavier',
+      'Yuki', 'Zack', 'Amy', 'Ben', 'Cara', 'Dan', 'Ella', 'Finn',
+      'Gina', 'Hugo', 'Iris', 'Jake', 'Kira', 'Liam', 'Maya', 'Nate',
+      'Ora', 'Paul', 'Quin', 'Rose', 'Sean', 'Tara', 'Uri', 'Vera',
+      'Will', 'Xena', 'Yara', 'Zoe', 'Adam', 'Beth', 'Cole', 'Dawn',
+      'Evan', 'Faye', 'Glen', 'Hope'
+    ];
+
+    function shuffleArray(arr) {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    $('generateTestDataBtn').addEventListener('click', async () => {
+      const status = $('test-data-status');
+      const btn = $('generateTestDataBtn');
+      
+      if (cubes.length < 5) {
+        status.innerHTML = '<span style="color: var(--accent);">Need at least 5 cubes to generate test data!</span>';
+        return;
+      }
+      
+      if (!confirm('Generate 60 test voters with random votes?')) return;
+      
+      btn.disabled = true;
+      status.innerHTML = '<span style="color: var(--text-muted);">Generating test data...</span>';
+      
+      try {
+        const cubeIds = cubes.map(c => c.id);
+        
+        for (let i = 0; i < 60; i++) {
+          const code = 'test_' + Math.random().toString(36).substr(2, 9);
+          const name = '[Test] ' + TEST_NAMES[i % TEST_NAMES.length] + ' ' + Math.floor(i / TEST_NAMES.length + 1);
+          
+          // Pick 5 random cubes
+          const shuffledCubes = shuffleArray(cubeIds);
+          const votes = shuffledCubes.slice(0, 5).map((cubeId, idx) => {
+            const cube = cubes.find(c => c.id === cubeId);
+            return {
+              cubeId: cubeId,
+              cubeName: cube?.title || 'Unknown',
+              rank: idx + 1
+            };
+          });
+          
+          await setDoc(doc(db, 'cubecon_invites', code), {
+            createdAt: new Date().toISOString(),
+            createdBy: '[Test Generator]',
+            name: name,
+            status: 'submitted',
+            votes: votes,
+            submittedAt: new Date().toISOString()
+          });
+          
+          // Update progress
+          status.innerHTML = `<span style="color: var(--text-muted);">Creating test voter ${i + 1}/60...</span>`;
+        }
+        
+        status.innerHTML = '<span style="color: var(--success);">✓ Created 60 test voters!</span>';
+        loadInvites();
+      } catch (err) {
+        console.error('Error generating test data:', err);
+        status.innerHTML = '<span style="color: var(--accent);">Error: ' + err.message + '</span>';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $('clearTestDataBtn').addEventListener('click', async () => {
+      const status = $('test-data-status');
+      const btn = $('clearTestDataBtn');
+      
+      if (!confirm('Delete ALL invites with names starting with "[Test]"? This cannot be undone.')) return;
+      
+      btn.disabled = true;
+      status.innerHTML = '<span style="color: var(--text-muted);">Clearing test data...</span>';
+      
+      try {
+        const testInvites = allInvites.filter(inv => inv.name && inv.name.startsWith('[Test]'));
+        
+        if (testInvites.length === 0) {
+          status.innerHTML = '<span style="color: var(--text-muted);">No test data found.</span>';
+          btn.disabled = false;
+          return;
+        }
+        
+        for (let i = 0; i < testInvites.length; i++) {
+          await deleteDoc(doc(db, 'cubecon_invites', testInvites[i].id));
+          status.innerHTML = `<span style="color: var(--text-muted);">Deleting ${i + 1}/${testInvites.length}...</span>`;
+        }
+        
+        status.innerHTML = `<span style="color: var(--success);">✓ Deleted ${testInvites.length} test invites!</span>`;
+        loadInvites();
+      } catch (err) {
+        console.error('Error clearing test data:', err);
+        status.innerHTML = '<span style="color: var(--accent);">Error: ' + err.message + '</span>';
+      } finally {
+        btn.disabled = false;
+      }
     });
   </script>
 </body>
