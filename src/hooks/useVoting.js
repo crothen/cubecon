@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import useInvite from './useInvite';
 
 const MAX_VOTES = 5;
 const MIN_VOTES = 3;
+const AUTOSAVE_DELAY_MS = 400;
 
 export default function useVoting() {
   const {
@@ -23,14 +24,18 @@ export default function useVoting() {
   const [voterName, setVoterName] = useState('');
   const [isVoting, setIsVoting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('idle');
+
+  const hasInitializedRef = useRef(false);
+  const hasEditedRef = useRef(false);
+  const saveTimerRef = useRef(null);
 
   // Initialize state from invite data
   useEffect(() => {
-    if (!isInviteLoading && isValid) {
+    if (!isInviteLoading && isValid && !hasInitializedRef.current) {
       if (isRegistered) {
         setVoterName(savedName);
-        
-        // Restore saved votes if any
+
         if (savedVotes.length > 0) {
           const restoredVotes = Array(MAX_VOTES).fill(null);
           savedVotes.forEach((vote, index) => {
@@ -43,12 +48,32 @@ export default function useVoting() {
           });
           setVotes(restoredVotes);
         }
+        hasInitializedRef.current = true;
       } else {
-        // New invite - show registration modal
         setShowModal(true);
+        hasInitializedRef.current = true;
       }
     }
   }, [isInviteLoading, isValid, isRegistered, savedName, savedVotes]);
+
+  // Autosave whenever votes change after the user has made an edit
+  useEffect(() => {
+    if (!isVoting || !hasEditedRef.current) return;
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+
+    setSaveStatus('saving');
+    saveTimerRef.current = setTimeout(async () => {
+      const validVotes = votes.filter((v) => v !== null);
+      const nextStatus = validVotes.length >= MIN_VOTES ? 'submitted' : 'registered';
+      const success = await saveVotes(votes, voterName, nextStatus);
+      setSaveStatus(success ? 'saved' : 'error');
+    }, AUTOSAVE_DELAY_MS);
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [votes, voterName, isVoting, saveVotes]);
 
   const startVoting = async () => {
     if (!voterName.trim()) return;
@@ -73,19 +98,19 @@ export default function useVoting() {
     setVotes((currentVotes) => {
       const existingIndex = currentVotes.findIndex((v) => v?.id === cube.id);
 
-      // Already selected — remove it
       if (existingIndex >= 0) {
         const newVotes = [...currentVotes];
         newVotes.splice(existingIndex, 1);
         newVotes.push(null);
+        hasEditedRef.current = true;
         return newVotes;
       }
 
-      // Find first empty slot
       const emptyIndex = currentVotes.findIndex((v) => v === null);
       if (emptyIndex >= 0) {
         const newVotes = [...currentVotes];
         newVotes[emptyIndex] = cubeData;
+        hasEditedRef.current = true;
         return newVotes;
       }
 
@@ -95,32 +120,36 @@ export default function useVoting() {
 
   const clearVote = useCallback((rank) => {
     setVotes((currentVotes) => {
+      if (!currentVotes[rank - 1]) return currentVotes;
       const newVotes = [...currentVotes];
       newVotes.splice(rank - 1, 1);
       newVotes.push(null);
+      hasEditedRef.current = true;
       return newVotes;
     });
   }, []);
 
-  const submitVotes = async () => {
-    const validVotes = votes.filter((v) => v !== null);
-
-    if (validVotes.length < MIN_VOTES) {
-      alert(`Please select at least ${MIN_VOTES} cubes.`);
-      return;
-    }
-
-    const success = await saveVotes(votes, voterName);
-    if (success) {
-      alert('Votes submitted! Thank you for participating.');
-      setIsVoting(false);
-    } else {
-      alert('Error submitting votes. Please try again.');
-    }
-  };
+  const reorderVotes = useCallback((fromFilledIndex, toFilledIndex) => {
+    if (fromFilledIndex === toFilledIndex) return;
+    setVotes((currentVotes) => {
+      const filled = currentVotes.filter((v) => v !== null);
+      if (
+        fromFilledIndex < 0 ||
+        fromFilledIndex >= filled.length ||
+        toFilledIndex < 0 ||
+        toFilledIndex >= filled.length
+      ) {
+        return currentVotes;
+      }
+      const [moved] = filled.splice(fromFilledIndex, 1);
+      filled.splice(toFilledIndex, 0, moved);
+      while (filled.length < MAX_VOTES) filled.push(null);
+      hasEditedRef.current = true;
+      return filled;
+    });
+  }, []);
 
   const validVoteCount = votes.filter((v) => v !== null).length;
-  const canSubmit = validVoteCount >= MIN_VOTES;
 
   return {
     // Invite state
@@ -129,7 +158,7 @@ export default function useVoting() {
     inviteError,
     isValidInvite: isValid,
     isSubmitted,
-    
+
     // Voting state
     votes,
     voterName,
@@ -137,14 +166,16 @@ export default function useVoting() {
     isVoting,
     showModal,
     hasSession: isRegistered && !isSubmitted,
-    canSubmit,
-    
+    validVoteCount,
+    minVotes: MIN_VOTES,
+    saveStatus,
+
     // Actions
     startVoting,
     rejoinVoting,
     toggleVote,
     clearVote,
-    submitVotes,
+    reorderVotes,
     closeModal: () => setShowModal(false),
   };
 }

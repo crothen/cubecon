@@ -36,27 +36,33 @@ export default function CubeCard({ cube, isSelected, voteRank, onVote, isVoting 
           )}
           
           <div className="cube-links">
-            {listUrl && (
-              <a
-                href={listUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cube-link"
-                onClick={handleLinkClick}
-              >
-                📋 Card List
-              </a>
-            )}
-            {descUrl && (
-              <a
-                href={descUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cube-link"
-                onClick={handleLinkClick}
-              >
-                📖 About
-              </a>
+            {listUrl || descUrl ? (
+              <>
+                {listUrl && (
+                  <a
+                    href={listUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cube-link"
+                    onClick={handleLinkClick}
+                  >
+                    📋 Card List
+                  </a>
+                )}
+                {descUrl && (
+                  <a
+                    href={descUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cube-link"
+                    onClick={handleLinkClick}
+                  >
+                    📖 About
+                  </a>
+                )}
+              </>
+            ) : (
+              <span className="cube-link-placeholder">List coming soon...</span>
             )}
           </div>
         </div>

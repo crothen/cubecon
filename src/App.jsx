@@ -69,12 +69,12 @@ export default function App() {
     isVoting,
     showModal,
     hasSession,
-    canSubmit,
+    saveStatus,
     startVoting,
     rejoinVoting,
     toggleVote,
     clearVote,
-    submitVotes,
+    reorderVotes,
   } = useVoting();
 
   // Determine which panel to show
@@ -100,10 +100,10 @@ export default function App() {
         <VotingPanel
           votes={votes}
           onClearVote={clearVote}
-          onSubmit={submitVotes}
+          onReorderVotes={reorderVotes}
           voterName={voterName}
           setVoterName={setVoterName}
-          canSubmit={canSubmit}
+          saveStatus={saveStatus}
         />
       );
     }

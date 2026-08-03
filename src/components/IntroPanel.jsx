@@ -4,7 +4,7 @@ export default function IntroPanel({ onRejoin, hasSession }) {
       <h2>Welcome to CubeCon 2026!</h2>
       <p>
         Join us for an epic day of cube drafting at{' '}
-        <strong>Kulturwerk 118, Sursee</strong> on <strong>May 2nd, 2026</strong>.
+        <strong>Pfarreizentrum Sursee, St. Urban-Strasse 8, Sursee</strong> on <strong>May 2nd, 2026</strong>.
       </p>
       <p>
         Up to <strong>64 players</strong> will be divided into{' '}

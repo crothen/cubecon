@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { getPublishedTournament, getTournament } from '../tournament';
 
 const INVITES_COLLECTION = 'cubecon_invites';
 
@@ -36,7 +37,24 @@ export default function useInvite() {
         setInvite(null);
       } else {
         const inviteData = { id: inviteSnap.id, ...inviteSnap.data() };
-        setInvite(inviteData);
+        const published = await getPublishedTournament();
+
+        if (inviteData.tournamentId && inviteData.tournamentId !== published?.id) {
+          // Invite belongs to a tournament that is not live on the site
+          const tournament = await getTournament(inviteData.tournamentId);
+          if (tournament?.status === 'archived') {
+            setError('This tournament has ended — voting is closed.');
+          } else {
+            setError('Voting is not open for this tournament yet.');
+          }
+          setInvite(null);
+        } else if (!inviteData.tournamentId && !published) {
+          // Legacy invite with no tournament while nothing is published
+          setError('Voting is currently closed.');
+          setInvite(null);
+        } else {
+          setInvite(inviteData);
+        }
       }
     } catch (err) {
       console.error('Error validating invite:', err);
@@ -46,7 +64,7 @@ export default function useInvite() {
     }
   };
 
-  const registerName = async (name) => {
+  const registerName = useCallback(async (name) => {
     if (!inviteCode || !invite) return false;
 
     try {
@@ -68,34 +86,38 @@ export default function useInvite() {
       console.error('Error registering name:', err);
       return false;
     }
-  };
+  }, [inviteCode, invite]);
 
-  const saveVotes = async (votes, name) => {
+  const saveVotes = useCallback(async (votes, name, status = 'submitted') => {
     if (!inviteCode) return false;
 
     try {
       const inviteRef = doc(db, INVITES_COLLECTION, inviteCode);
       const validVotes = votes.filter((v) => v !== null);
 
-      const submittedAt = new Date().toISOString();
       const voteData = validVotes.map((v, i) => ({
         cubeId: v.id,
         cubeName: v.name,
         rank: i + 1,
       }));
 
-      await updateDoc(inviteRef, {
+      const payload = {
         name: name,
         votes: voteData,
-        submittedAt: submittedAt,
-        status: 'submitted',
-      });
+        status: status,
+        updatedAt: new Date().toISOString(),
+      };
+      if (status === 'submitted') {
+        payload.submittedAt = new Date().toISOString();
+      }
+
+      await updateDoc(inviteRef, payload);
 
       // Sheets sync now handled by Firebase Function (server-side)
 
       setInvite((prev) => ({
         ...prev,
-        status: 'submitted',
+        status: status,
         votes: validVotes,
       }));
 
@@ -104,7 +126,7 @@ export default function useInvite() {
       console.error('Error saving votes:', err);
       return false;
     }
-  };
+  }, [inviteCode]);
 
   // Derived states
   const isValid = invite !== null && !error;

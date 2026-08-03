@@ -445,6 +445,32 @@
       color: var(--success);
     }
 
+    .badge-draft {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .badge-published {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .badge-archived {
+      background: rgba(136, 136, 136, 0.15);
+      color: var(--text-muted);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    input:disabled, textarea:disabled, select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     /* Cube List */
     .cube-item {
       display: flex;
@@ -640,7 +666,7 @@
   <div class="auth-screen hidden" id="loginScreen">
     <div class="auth-card">
       <h1>🔐 Admin Login</h1>
-      <p>Sign in to manage CubeCon 2026</p>
+      <p>Sign in to manage CubeCon</p>
       <button class="btn-google" id="btnGoogleSignIn">
         <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Sign in with Google
@@ -669,6 +695,22 @@
     </nav>
 
     <main>
+      <!-- Tournament -->
+      <div class="section" style="border-color: var(--accent);">
+        <div class="section-header">
+          <h2>🏆 Tournament</h2>
+          <button class="btn btn-sm" id="newTournamentBtn">+ New Tournament</button>
+        </div>
+        <div class="section-body">
+          <div class="form-row" style="align-items: center;">
+            <select id="tournament-select" style="flex: 1;"></select>
+            <span id="tournament-status"></span>
+          </div>
+          <div id="tournament-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;"></div>
+          <p id="tournament-note" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted);"></p>
+        </div>
+      </div>
+
       <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card">
@@ -785,6 +827,24 @@
         </div>
       </div>
 
+      <!-- Pods -->
+      <div class="section">
+        <div class="section-header">
+          <h2>🎲 Pods</h2>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-sm" id="generatePodsBtn">Generate Pods</button>
+            <button class="btn btn-sm btn-secondary" id="savePodsBtn" disabled>Save to Tournament</button>
+            <button class="btn btn-sm btn-secondary" id="downloadPodsBtn" disabled>Download CSV</button>
+          </div>
+        </div>
+        <div class="section-body">
+          <p id="pods-status" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Pods are built from submitted votes: sizes 8 &gt; 7 &gt; 6, most popular cubes get pods, players assigned by preference.
+          </p>
+          <div id="pods-output"><p class="empty">No pods generated yet.</p></div>
+        </div>
+      </div>
+
       <!-- Test Data Section -->
       <div class="section" style="border-color: var(--warning);">
         <div class="section-header">
@@ -852,9 +912,9 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { 
-      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, 
-      doc, getDoc, setDoc, query, orderBy 
+    import {
+      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc,
+      doc, getDoc, setDoc, query, orderBy, where, writeBatch
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
     import {
       getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut
@@ -898,7 +958,8 @@
           if (adminDoc.exists()) {
             $('userDisplay').textContent = user.email;
             showScreen(dashboard);
-            loadAll();
+            await initTournaments();
+            await loadAll();
           } else {
             showScreen(accessDenied);
           }
@@ -924,19 +985,182 @@
     $('btnLogout').addEventListener('click', () => signOut(auth));
     $('btnLogoutDenied').addEventListener('click', () => signOut(auth));
 
-    // Load All Data
-    // Note: Sheets sync now handled by Firebase Functions (server-side)
+    // ===== Tournaments =====
+    const TOURNAMENTS = 'cubecon_tournaments';
+    let tournaments = [];
+    let currentTournament = null;
     let allInvites = [];
-    
+
+    function isArchived() {
+      return currentTournament?.status === 'archived';
+    }
+
+    async function initTournaments() {
+      await refreshTournaments();
+
+      // First run: migrate legacy (untagged) data into a default tournament
+      if (tournaments.length === 0) {
+        await migrateLegacyData();
+        await refreshTournaments();
+      }
+
+      const published = tournaments.find(t => t.status === 'published');
+      currentTournament = published || tournaments[0];
+      renderTournamentUI();
+    }
+
+    async function refreshTournaments(keepId) {
+      const snapshot = await getDocs(collection(db, TOURNAMENTS));
+      tournaments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      tournaments.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      if (keepId) {
+        currentTournament = tournaments.find(t => t.id === keepId) || tournaments[0] || null;
+        renderTournamentUI();
+      }
+    }
+
+    // Tags all existing cubes/invites without a tournamentId into a new default tournament
+    async function migrateLegacyData() {
+      const ref = doc(collection(db, TOURNAMENTS));
+      await setDoc(ref, {
+        name: 'CubeCon 2026',
+        status: 'published',
+        createdAt: new Date().toISOString(),
+        createdBy: currentUser.email
+      });
+
+      for (const collName of ['cubecon_cubes', 'cubecon_invites']) {
+        const snapshot = await getDocs(collection(db, collName));
+        const untagged = snapshot.docs.filter(d => !d.data().tournamentId);
+        for (let i = 0; i < untagged.length; i += 400) {
+          const batch = writeBatch(db);
+          untagged.slice(i, i + 400).forEach(d => batch.update(d.ref, { tournamentId: ref.id }));
+          await batch.commit();
+        }
+      }
+    }
+
+    function renderTournamentUI() {
+      if (!currentTournament) return;
+      const select = $('tournament-select');
+      select.innerHTML = tournaments.map(t =>
+        `<option value="${t.id}" ${t.id === currentTournament.id ? 'selected' : ''}>${t.name} (${t.status})</option>`
+      ).join('');
+
+      $('tournament-status').innerHTML =
+        `<span class="badge badge-${currentTournament.status}">${currentTournament.status}</span>`;
+
+      const status = currentTournament.status;
+      let actionsHtml = '';
+      if (status !== 'published') actionsHtml += `<button class="btn btn-sm" id="publishTournamentBtn">Publish</button>`;
+      if (status === 'published') actionsHtml += `<button class="btn btn-sm btn-secondary" id="unpublishTournamentBtn">Unpublish (draft)</button>`;
+      if (status !== 'archived') actionsHtml += `<button class="btn btn-sm btn-secondary" id="archiveTournamentBtn">Archive</button>`;
+      actionsHtml += `<button class="btn btn-sm btn-secondary" id="renameTournamentBtn">Rename</button>`;
+      $('tournament-actions').innerHTML = actionsHtml;
+
+      const publishBtn = $('publishTournamentBtn');
+      if (publishBtn) publishBtn.addEventListener('click', () => setTournamentStatus('published'));
+      const unpublishBtn = $('unpublishTournamentBtn');
+      if (unpublishBtn) unpublishBtn.addEventListener('click', () => setTournamentStatus('draft'));
+      const archiveBtn = $('archiveTournamentBtn');
+      if (archiveBtn) archiveBtn.addEventListener('click', () => setTournamentStatus('archived'));
+      $('renameTournamentBtn').addEventListener('click', renameTournament);
+
+      const note = $('tournament-note');
+      if (status === 'published') note.textContent = 'This tournament is live on the website.';
+      else if (status === 'draft') note.textContent = 'Draft — not visible on the website. Publish to make it live.';
+      else note.textContent = 'Archived — read-only. Data and pods are kept for reference.';
+
+      applyReadOnlyState();
+    }
+
+    function applyReadOnlyState() {
+      const readOnly = isArchived();
+      ['generateInvitesBtn', 'generateTestDataBtn', 'clearTestDataBtn', 'generatePodsBtn'].forEach(id => {
+        $(id).disabled = readOnly;
+      });
+      document.querySelectorAll('#add-cube-form input, #add-cube-form textarea, #add-cube-form button')
+        .forEach(el => el.disabled = readOnly);
+      if (readOnly) $('savePodsBtn').disabled = true;
+    }
+
+    async function setTournamentStatus(newStatus) {
+      const now = new Date().toISOString();
+      try {
+        if (newStatus === 'published') {
+          const other = tournaments.find(t => t.status === 'published' && t.id !== currentTournament.id);
+          if (other && !confirm(`"${other.name}" is currently published and will be set back to draft. Continue?`)) return;
+          const batch = writeBatch(db);
+          tournaments
+            .filter(t => t.status === 'published' && t.id !== currentTournament.id)
+            .forEach(t => batch.update(doc(db, TOURNAMENTS, t.id), { status: 'draft' }));
+          batch.update(doc(db, TOURNAMENTS, currentTournament.id), { status: 'published', publishedAt: now });
+          await batch.commit();
+        } else if (newStatus === 'archived') {
+          if (!confirm(`Archive "${currentTournament.name}"? It becomes read-only and is removed from the website.`)) return;
+          await updateDoc(doc(db, TOURNAMENTS, currentTournament.id), { status: 'archived', archivedAt: now });
+        } else {
+          if (!confirm(`Unpublish "${currentTournament.name}"? The website will show no tournament until another is published.`)) return;
+          await updateDoc(doc(db, TOURNAMENTS, currentTournament.id), { status: 'draft' });
+        }
+        await refreshTournaments(currentTournament.id);
+      } catch (err) {
+        console.error('Error updating tournament status:', err);
+        alert('Error updating tournament status');
+      }
+    }
+
+    async function renameTournament() {
+      const name = prompt('Tournament name:', currentTournament.name);
+      if (!name || !name.trim() || name.trim() === currentTournament.name) return;
+      try {
+        await updateDoc(doc(db, TOURNAMENTS, currentTournament.id), { name: name.trim() });
+        await refreshTournaments(currentTournament.id);
+      } catch (err) {
+        console.error('Error renaming tournament:', err);
+        alert('Error renaming tournament');
+      }
+    }
+
+    $('newTournamentBtn').addEventListener('click', async () => {
+      const name = prompt('Name for the new tournament (e.g. "CubeCon 2027"):');
+      if (!name || !name.trim()) return;
+      try {
+        const ref = await addDoc(collection(db, TOURNAMENTS), {
+          name: name.trim(),
+          status: 'draft',
+          createdAt: new Date().toISOString(),
+          createdBy: currentUser.email
+        });
+        await refreshTournaments(ref.id);
+        await loadAll();
+      } catch (err) {
+        console.error('Error creating tournament:', err);
+        alert('Error creating tournament');
+      }
+    });
+
+    $('tournament-select').addEventListener('change', async (e) => {
+      currentTournament = tournaments.find(t => t.id === e.target.value) || currentTournament;
+      renderTournamentUI();
+      await loadAll();
+    });
+
+    // ===== Data loading (scoped to selected tournament) =====
     async function loadAll() {
+      if (!currentTournament) return;
       await loadInvites();
       await loadCubes();
+      resetPodsView();
     }
 
     // Cubes
     async function loadCubes() {
       try {
-        const snapshot = await getDocs(collection(db, 'cubecon_cubes'));
+        const snapshot = await getDocs(query(
+          collection(db, 'cubecon_cubes'),
+          where('tournamentId', '==', currentTournament.id)
+        ));
         cubes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         $('total-cubes').textContent = cubes.length;
         renderCubeList();
@@ -989,10 +1213,11 @@
             </div>
             ` : ''}
           </div>
+          ${isArchived() ? '' : `
           <div class="cube-actions">
             <button class="btn btn-sm btn-secondary" data-action="edit" data-id="${cube.id}">Edit</button>
             <button class="btn btn-sm btn-danger" data-action="delete" data-id="${cube.id}">Delete</button>
-          </div>
+          </div>`}
         </div>
       `}).join('');
 
@@ -1007,7 +1232,10 @@
     // Invites
     async function loadInvites() {
       try {
-        const snapshot = await getDocs(collection(db, 'cubecon_invites'));
+        const snapshot = await getDocs(query(
+          collection(db, 'cubecon_invites'),
+          where('tournamentId', '==', currentTournament.id)
+        ));
         allInvites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         
         const submitted = allInvites.filter(i => i.status === 'submitted');
@@ -1045,6 +1273,7 @@
         for (let i = 0; i < count; i++) {
           const code = 'cc26_' + Math.random().toString(36).substr(2, 9);
           await setDoc(doc(db, 'cubecon_invites', code), {
+            tournamentId: currentTournament.id,
             createdAt: new Date().toISOString(),
             createdBy: currentUser.email,
             status: 'pending'
@@ -1076,6 +1305,7 @@
     $('add-cube-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const cube = {
+        tournamentId: currentTournament.id,
         title: $('cube-title').value.trim(),
         descriptionUrl: $('cube-desc-url').value.trim() || null,
         listUrl: $('cube-list-url').value.trim() || null,
@@ -1170,6 +1400,298 @@
       btn.innerHTML = `<span id="invites-toggle-icon">${isCollapsed ? '▶' : '▼'}</span> ${isCollapsed ? 'Show' : 'Hide'} Details`;
     });
 
+    // ===== Pods =====
+    // Ported from the old Google Apps Script generatePods()
+    let displayedPods = null;   // whatever is currently rendered (saved or freshly generated)
+    let generatedPods = null;   // freshly generated, not yet saved
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    // Pods must be 6, 7, or 8 players. Prioritize 8, then 7, then 6.
+    function calculatePodDistribution(n) {
+      if (n < 6) return null;
+
+      for (let pods8 = Math.floor(n / 8); pods8 >= 0; pods8--) {
+        const remaining = n - (pods8 * 8);
+        if (remaining === 0) return { pods8, pods7: 0, pods6: 0 };
+        for (let pods7 = Math.floor(remaining / 7); pods7 >= 0; pods7--) {
+          const remaining7 = remaining - (pods7 * 7);
+          if (remaining7 >= 0 && remaining7 % 6 === 0) {
+            return { pods8, pods7, pods6: remaining7 / 6 };
+          }
+        }
+      }
+
+      for (let pods7 = Math.floor(n / 7); pods7 >= 0; pods7--) {
+        const remaining = n - (pods7 * 7);
+        if (remaining >= 0 && remaining % 6 === 0) {
+          return { pods8: 0, pods7, pods6: remaining / 6 };
+        }
+      }
+
+      return null;
+    }
+
+    function computePods() {
+      // Build player preferences from submitted votes
+      const players = {};
+      allInvites
+        .filter(inv => inv.status === 'submitted' && Array.isArray(inv.votes) && inv.votes.length > 0)
+        .forEach(inv => {
+          players[inv.id] = {
+            name: inv.name || inv.id,
+            prefs: [...inv.votes]
+              .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+              .map(v => v.cubeId)
+              .filter(Boolean)
+          };
+        });
+
+      const playerCount = Object.keys(players).length;
+      const dist = calculatePodDistribution(playerCount);
+      if (!dist) {
+        return { error: `Cannot form valid pods with ${playerCount} submitted player(s). Need at least 6, divisible into groups of 6, 7, or 8.` };
+      }
+
+      const podSizes = [];
+      for (let i = 0; i < dist.pods8; i++) podSizes.push(8);
+      for (let i = 0; i < dist.pods7; i++) podSizes.push(7);
+      for (let i = 0; i < dist.pods6; i++) podSizes.push(6);
+      const totalPods = podSizes.length;
+
+      // Weighted vote counts per cube (higher preference = more weight)
+      const cubeVoteCounts = {};
+      Object.values(players).forEach(p => {
+        p.prefs.forEach((cubeId, idx) => {
+          if (!cubeVoteCounts[cubeId]) cubeVoteCounts[cubeId] = { total: 0, weighted: 0 };
+          cubeVoteCounts[cubeId].total++;
+          cubeVoteCounts[cubeId].weighted += (5 - idx);
+        });
+      });
+
+      const sortedCubes = Object.entries(cubeVoteCounts)
+        .sort((a, b) => b[1].weighted - a[1].weighted)
+        .map(e => e[0]);
+
+      // Assign pod slots to the most popular cubes
+      const pods = {};
+      for (let i = 0; i < Math.min(totalPods, sortedCubes.length); i++) {
+        pods[sortedCubes[i]] = { maxSize: podSizes[i], members: [] };
+      }
+      if (totalPods > sortedCubes.length) {
+        for (let i = sortedCubes.length; i < totalPods; i++) {
+          pods[sortedCubes[i % sortedCubes.length] + '_extra_' + i] = { maxSize: podSizes[i], members: [] };
+        }
+      }
+
+      const playerPrefLevel = {};
+      const assigned = new Set();
+
+      // Pass 1-5: assign by preference level, shuffled each pass for fairness
+      for (let prefLevel = 0; prefLevel < 5; prefLevel++) {
+        const codes = shuffleArray(Object.keys(players).filter(c => !assigned.has(c)));
+        codes.forEach(code => {
+          if (assigned.has(code)) return;
+          const cubeId = players[code].prefs[prefLevel];
+          if (!cubeId || !pods[cubeId]) return;
+          if (pods[cubeId].members.length < pods[cubeId].maxSize) {
+            pods[cubeId].members.push(code);
+            playerPrefLevel[code] = prefLevel + 1;
+            assigned.add(code);
+          }
+        });
+      }
+
+      // Final pass: remaining players into any pod with space
+      Object.keys(players).forEach(code => {
+        if (assigned.has(code)) return;
+        for (const cubeId of players[code].prefs) {
+          if (pods[cubeId] && pods[cubeId].members.length < pods[cubeId].maxSize) {
+            pods[cubeId].members.push(code);
+            playerPrefLevel[code] = 'alt';
+            assigned.add(code);
+            return;
+          }
+        }
+        for (const pod of Object.values(pods)) {
+          if (pod.members.length < pod.maxSize) {
+            pod.members.push(code);
+            playerPrefLevel[code] = 'forced';
+            assigned.add(code);
+            return;
+          }
+        }
+      });
+
+      const cubeNameById = {};
+      cubes.forEach(c => { cubeNameById[c.id] = c.title || c.name || c.id; });
+
+      const podList = Object.entries(pods)
+        .filter(([, pod]) => pod.members.length > 0)
+        .sort((a, b) => b[1].members.length - a[1].members.length)
+        .map(([cubeKey, pod]) => {
+          const baseCubeId = cubeKey.replace(/_extra_\d+$/, '');
+          return {
+            cubeId: baseCubeId,
+            cubeName: cubeNameById[baseCubeId] || baseCubeId,
+            size: pod.members.length,
+            maxSize: pod.maxSize,
+            players: pod.members.map(code => ({
+              code,
+              name: players[code]?.name || code,
+              pref: String(playerPrefLevel[code])
+            }))
+          };
+        });
+
+      const prefCounts = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, alt: 0, forced: 0 };
+      Object.values(playerPrefLevel).forEach(p => {
+        const key = String(p);
+        if (prefCounts[key] !== undefined) prefCounts[key]++;
+      });
+
+      return {
+        playerCount,
+        distribution: `${dist.pods8}×8 + ${dist.pods7}×7 + ${dist.pods6}×6 = ${playerCount}`,
+        pods: podList,
+        assignedCount: assigned.size,
+        unassigned: Object.keys(players).filter(c => !assigned.has(c)).map(c => players[c].name),
+        prefCounts
+      };
+    }
+
+    function renderPods(result) {
+      const out = $('pods-output');
+      displayedPods = result && !result.error ? result : null;
+      $('downloadPodsBtn').disabled = !displayedPods;
+
+      if (!result) {
+        out.innerHTML = '<p class="empty">No pods generated yet.</p>';
+        return;
+      }
+      if (result.error) {
+        out.innerHTML = `<p class="empty" style="color: var(--warning);">${escapeHtml(result.error)}</p>`;
+        return;
+      }
+
+      const prefLabels = { alt: 'Alternative', forced: 'Forced' };
+      let html = `
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Pod (Cube)</th><th>Size</th><th>Players</th></tr></thead>
+            <tbody>
+              ${result.pods.map(p => `
+                <tr>
+                  <td>${escapeHtml(p.cubeName)}</td>
+                  <td>${p.size}/${p.maxSize}</td>
+                  <td style="white-space: normal;">${p.players.map(pl =>
+                    `${escapeHtml(pl.name)} <span style="color: var(--text-muted);">(#${escapeHtml(prefLabels[pl.pref] || pl.pref)})</span>`
+                  ).join(', ')}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 1rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+          <p><strong style="color: var(--text);">${result.playerCount}</strong> players in
+             <strong style="color: var(--text);">${result.pods.length}</strong> pods
+             (${escapeHtml(result.distribution)})</p>
+          <p style="margin-top: 0.5rem;">Got their choice:
+            #1: ${result.prefCounts['1']} · #2: ${result.prefCounts['2']} · #3: ${result.prefCounts['3']} ·
+            #4: ${result.prefCounts['4']} · #5: ${result.prefCounts['5']} ·
+            Alternative: ${result.prefCounts.alt} · Forced: ${result.prefCounts.forced}</p>
+          ${result.unassigned.length > 0
+            ? `<p style="color: var(--warning); margin-top: 0.5rem;">⚠️ Unassigned: ${escapeHtml(result.unassigned.join(', '))}</p>`
+            : ''}
+        </div>`;
+      out.innerHTML = html;
+    }
+
+    function resetPodsView() {
+      generatedPods = null;
+      $('savePodsBtn').disabled = true;
+      const saved = currentTournament?.pods;
+      if (saved && saved.pods) {
+        renderPods(saved);
+        const when = saved.generatedAt ? new Date(saved.generatedAt).toLocaleString() : 'unknown date';
+        $('pods-status').textContent = `Showing saved pods (generated ${when}). Generate again to reshuffle.`;
+      } else {
+        renderPods(null);
+        $('pods-status').textContent = 'Pods are built from submitted votes: sizes 8 > 7 > 6, most popular cubes get pods, players assigned by preference.';
+      }
+    }
+
+    $('generatePodsBtn').addEventListener('click', () => {
+      const result = computePods();
+      renderPods(result);
+      if (result.error) {
+        generatedPods = null;
+        $('savePodsBtn').disabled = true;
+        $('pods-status').textContent = 'Could not generate pods.';
+      } else {
+        generatedPods = result;
+        $('savePodsBtn').disabled = isArchived();
+        $('pods-status').textContent = 'Freshly generated — not saved yet. Click "Save to Tournament" to store this result.';
+      }
+    });
+
+    $('savePodsBtn').addEventListener('click', async () => {
+      if (!generatedPods || isArchived()) return;
+      try {
+        const snapshot = {
+          ...generatedPods,
+          generatedAt: new Date().toISOString(),
+          generatedBy: currentUser.email
+        };
+        await updateDoc(doc(db, TOURNAMENTS, currentTournament.id), { pods: snapshot });
+        currentTournament.pods = snapshot;
+        const inList = tournaments.find(t => t.id === currentTournament.id);
+        if (inList) inList.pods = snapshot;
+        generatedPods = null;
+        $('savePodsBtn').disabled = true;
+        $('pods-status').textContent = `Pods saved to "${currentTournament.name}".`;
+      } catch (err) {
+        console.error('Error saving pods:', err);
+        alert('Error saving pods');
+      }
+    });
+
+    $('downloadPodsBtn').addEventListener('click', () => {
+      if (!displayedPods) return;
+      const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const lines = [];
+      lines.push(['Pod (Cube)', 'Size', 'Players'].map(esc).join(','));
+      displayedPods.pods.forEach(p => {
+        lines.push([
+          p.cubeName,
+          `${p.size}/${p.maxSize}`,
+          p.players.map(pl => `${pl.name} (#${pl.pref})`).join(', ')
+        ].map(esc).join(','));
+      });
+      lines.push('');
+      lines.push(['Total Players', displayedPods.playerCount].map(esc).join(','));
+      lines.push(['Total Pods', displayedPods.pods.length].map(esc).join(','));
+      lines.push(['Distribution', displayedPods.distribution].map(esc).join(','));
+      ['1', '2', '3', '4', '5'].forEach(k => {
+        lines.push([`#${k} choice`, displayedPods.prefCounts[k]].map(esc).join(','));
+      });
+      lines.push(['Alternative', displayedPods.prefCounts.alt].map(esc).join(','));
+      lines.push(['Forced', displayedPods.prefCounts.forced].map(esc).join(','));
+      if (displayedPods.unassigned.length > 0) {
+        lines.push(['Unassigned', displayedPods.unassigned.join(', ')].map(esc).join(','));
+      }
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${(currentTournament?.name || 'cubecon').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-pods.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
     // Test Data Functions
     const TEST_NAMES = [
       'Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry',
@@ -1231,6 +1753,7 @@
           });
           
           await setDoc(doc(db, 'cubecon_invites', code), {
+            tournamentId: currentTournament.id,
             createdAt: new Date().toISOString(),
             createdBy: '[Test Generator]',
             name: name,
